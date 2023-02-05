@@ -7,6 +7,8 @@ import {
 import { Card, Avatar, Button, TextInput } from "flowbite-react";
 import Image from "next/image";
 import { BiImageAlt } from "react-icons/bi";
+import TweetComment from "./TweetComment";
+import CommentBox from "./CommentBox";
 
 export default function Tweet() {
   return (
@@ -72,26 +74,10 @@ export default function Tweet() {
             </Button>
           </Button.Group>
 
-          <form className="flex items-center gap-4">
-            <Avatar img="https://flowbite.com/docs/images/people/profile-picture-5.jpg" />
-            <fieldset className="relative flex-1">
-              <TextInput
-                type="text"
-                placeholder="Tweet your reply"
-                required={true}
-                className="rounded-lg border border-solid border-gray-200"
-              />
-              <BiImageAlt className="absolute top-2 right-2 cursor-pointer text-2xl text-gray-400 hover:text-blue-500" />
-            </fieldset>
-          </form>
+          <CommentBox />
 
-          <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Noteworthy technology acquisitions 2021
-          </h5>
-          <p className="font-normal text-gray-700 dark:text-gray-400">
-            Here are the biggest enterprise technology acquisitions of 2021 so
-            far, in reverse chronological order.
-          </p>
+          <TweetComment />
+          <TweetComment />
         </Card>
       </article>
     </li>

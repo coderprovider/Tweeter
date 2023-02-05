@@ -1,4 +1,5 @@
 import { Navbar, Dropdown, Avatar } from "flowbite-react";
+import Link from "next/link";
 
 export default function AppHeader() {
   return (
@@ -29,20 +30,27 @@ export default function AppHeader() {
                 name@flowbite.com
               </span>
             </Dropdown.Header>
-            <Dropdown.Item>Dashboard</Dropdown.Item>
+            <Dropdown.Item>
+              <Link href="/profile">Profile</Link>
+            </Dropdown.Item>
             <Dropdown.Item>Settings</Dropdown.Item>
-            <Dropdown.Item>Earnings</Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item>Sign out</Dropdown.Item>
           </Dropdown>
           <Navbar.Toggle />
         </div>
         <Navbar.Collapse>
-          <Navbar.Link href="/navbars" active={true}>
-            Home
-          </Navbar.Link>
-          <Navbar.Link href="/navbars">Explore</Navbar.Link>
-          <Navbar.Link href="/navbars">Bookmarks</Navbar.Link>
+          <Link href="/" legacyBehavior>
+            <Navbar.Link active={true} className="cursor-pointer">
+              Home
+            </Navbar.Link>
+          </Link>
+          <Link href="/explore" legacyBehavior>
+            <Navbar.Link className="cursor-pointer">Explore</Navbar.Link>
+          </Link>
+          <Link href="/bookmarks" legacyBehavior>
+            <Navbar.Link className="cursor-pointer">Bookmarks</Navbar.Link>
+          </Link>
         </Navbar.Collapse>
       </Navbar>
     </header>
