@@ -2,8 +2,8 @@ import { ListGroup } from "flowbite-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Tweet from "../components/layout/Tweet";
-// import FollowingModal from "../components/profile/FollowingModal";
 import UserBio from "../components/profile/UserBio";
+import { useState } from "react";
 
 const FollowingModal = dynamic(
   () => import("../components/profile/FollowingModal"),
@@ -11,6 +11,8 @@ const FollowingModal = dynamic(
 );
 
 export default function Profile() {
+  const [toggleModal, setToggleModal] = useState<boolean>(false);
+
   return (
     <>
       <figure className="relative h-72 w-full">
@@ -22,7 +24,7 @@ export default function Profile() {
         />
       </figure>
       <main className="mx-auto w-[80rem]">
-        <UserBio />
+        <UserBio setToggleModal={setToggleModal} />
 
         <section className="mx-auto grid w-[80rem] grid-cols-4 gap-6 py-6">
           <div className="col-span-1 w-full">
@@ -48,7 +50,10 @@ export default function Profile() {
         </section>
       </main>
 
-      <FollowingModal />
+      <FollowingModal
+        toggleModal={toggleModal}
+        setToggleModal={setToggleModal}
+      />
     </>
   );
 }

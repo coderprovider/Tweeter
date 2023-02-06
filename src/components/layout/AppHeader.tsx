@@ -4,14 +4,14 @@ import Link from "next/link";
 export default function AppHeader() {
   return (
     <header className="AppHeader w-full bg-white">
-      <Navbar fluid={true} className="mx-auto w-[90rem]">
-        <Navbar.Brand href="https://flowbite.com/">
+      <Navbar fluid={true} className="mx-auto max-w-[90rem]">
+        <Link href="/">
           <img
             src="/images/tweeter.svg"
             className="h-6 sm:h-9"
             alt="app Logo"
           />
-        </Navbar.Brand>
+        </Link>
         <div className="flex md:order-2">
           <Dropdown
             arrowIcon={false}
@@ -30,9 +30,9 @@ export default function AppHeader() {
                 name@flowbite.com
               </span>
             </Dropdown.Header>
-            <Dropdown.Item>
-              <Link href="/profile">Profile</Link>
-            </Dropdown.Item>
+            <Link href="/profile">
+              <Dropdown.Item>Profile</Dropdown.Item>
+            </Link>
             <Dropdown.Item>Settings</Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item>Sign out</Dropdown.Item>
@@ -40,16 +40,20 @@ export default function AppHeader() {
           <Navbar.Toggle />
         </div>
         <Navbar.Collapse>
-          <Link href="/" legacyBehavior>
-            <Navbar.Link active={true} className="cursor-pointer">
+          <Link href="/">
+            <span className="cursor-pointer text-sm text-gray-700 hover:text-blue-500">
               Home
-            </Navbar.Link>
+            </span>
           </Link>
-          <Link href="/explore" legacyBehavior>
-            <Navbar.Link className="cursor-pointer">Explore</Navbar.Link>
+          <Link href="/explore">
+            <span className="cursor-pointer text-sm text-gray-700 hover:text-blue-500">
+              Explore
+            </span>
           </Link>
-          <Link href="/bookmarks" legacyBehavior>
-            <Navbar.Link className="cursor-pointer">Bookmarks</Navbar.Link>
+          <Link href="/bookmarks">
+            <span className="cursor-pointer text-sm text-gray-700 hover:text-blue-500">
+              Bookmarks
+            </span>
           </Link>
         </Navbar.Collapse>
       </Navbar>

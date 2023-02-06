@@ -1,6 +1,11 @@
 import { Avatar, Button, Card } from "flowbite-react";
+import { Dispatch, SetStateAction } from "react";
 
-export default function UserBio() {
+interface UserBioProps {
+  setToggleModal: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function UserBio({ setToggleModal }: UserBioProps) {
   return (
     <Card className="relative z-10 -mt-10">
       <section className="flex gap-6">
@@ -15,7 +20,10 @@ export default function UserBio() {
               <h5 className="text-xl font-bold capitalize tracking-tight text-gray-900 dark:text-white">
                 Daniel Jensen
               </h5>
-              <p className="cursor-pointer text-sm font-semibold text-gray-500 dark:text-gray-400">
+              <p
+                onClick={() => setToggleModal(true)}
+                className="cursor-pointer text-sm font-semibold text-gray-500 dark:text-gray-400"
+              >
                 <span className="font-bold text-gray-600">2,569 </span>
                 Following
               </p>

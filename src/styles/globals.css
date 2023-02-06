@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .styledScrollbar {
+    @apply overflow-y-scroll scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-300 scrollbar-thumb-rounded-xl scrollbar-w-2;
+  }
+}
+
 * {
   font-family: "Quicksand", sans-serif;
   margin: 0;
@@ -13,10 +19,7 @@
   border: none;
   text-decoration: none;
 }
-/* 
+
 html {
-  font-size: 62.5%;
   overflow-x: hidden;
-  scroll-behavior: smooth;
-  scroll-padding-top: 6.5rem;
-} */
+}
