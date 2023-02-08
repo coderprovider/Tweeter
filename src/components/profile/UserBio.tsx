@@ -8,15 +8,15 @@ interface UserBioProps {
 export default function UserBio({ setToggleModal }: UserBioProps) {
   return (
     <Card className="relative z-10 -mt-10">
-      <section className="flex gap-6">
+      <section className="flex max-w-full gap-6">
         <Avatar
           img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
           size="xl"
-          className="-mt-20"
+          className="-mt-16 hidden sm:block"
         />
-        <article className="flex-1">
-          <div className="flex justify-between">
-            <div className="flex items-center gap-x-5">
+        <article className="max-w-full flex-1">
+          <div className="flex flex-wrap justify-between">
+            <div className="flex flex-wrap items-center gap-x-5">
               <h5 className="text-xl font-bold capitalize tracking-tight text-gray-900 dark:text-white">
                 Daniel Jensen
               </h5>
@@ -35,7 +35,7 @@ export default function UserBio({ setToggleModal }: UserBioProps) {
             <Button>Follow</Button>
           </div>
 
-          <p className="mt-2 w-96 font-medium text-gray-500">
+          <p className="mt-2 w-96 max-w-full font-medium text-gray-500">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi,
             minima!
           </p>

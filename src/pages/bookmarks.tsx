@@ -3,7 +3,7 @@ import Tweet from "../components/layout/Tweet";
 
 export default function Bookmarks() {
   return (
-    <main className="mx-auto grid w-[80rem] grid-cols-4 gap-6 py-6">
+    <main className="mx-auto grid w-[80rem] max-w-full grid-cols-1 gap-6 py-6 px-4 md:grid-cols-4">
       <div className="col-span-1 w-full">
         <ListGroup>
           <ListGroup.Item
@@ -20,7 +20,7 @@ export default function Bookmarks() {
         </ListGroup>
       </div>
 
-      <ul className="col-span-3 space-y-7">
+      <ul className="space-y-7 md:col-span-3">
         <Tweet />
         <Tweet />
       </ul>

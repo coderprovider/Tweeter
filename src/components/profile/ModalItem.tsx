@@ -4,9 +4,9 @@ import Image from "next/image";
 export default function ModalItem() {
   return (
     <li className="border-0 border-b-2 border-solid border-gray-200 py-3 sm:py-4">
-      <div className="flex justify-between space-x-4">
-        <div className="flex items-center space-x-4">
-          <figure className="relative h-9 w-9 shrink-0">
+      <div className="flex flex-wrap justify-between space-x-4">
+        <div className="flex items-center sm:space-x-4">
+          <figure className="relative hidden h-9 w-9 shrink-0 sm:block">
             <Image
               fill={true}
               className="rounded-lg"
@@ -14,7 +14,7 @@ export default function ModalItem() {
               alt="Michael image"
             />
           </figure>
-          <div className="min-w-0 flex-1">
+          <div className="flex-1">
             <p className="truncate text-base font-bold text-gray-900 dark:text-white">
               Michael Gough
             </p>

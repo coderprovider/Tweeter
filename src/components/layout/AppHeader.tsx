@@ -1,7 +1,12 @@
-import { Navbar, Dropdown, Avatar } from "flowbite-react";
+import { Navbar, Dropdown, Avatar, Button } from "flowbite-react";
 import Link from "next/link";
+import { Dispatch, SetStateAction } from "react";
 
-export default function AppHeader() {
+interface Props {
+  setToggleModal: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function AppHeader({ setToggleModal }: Props) {
   return (
     <header className="AppHeader w-full bg-white">
       <Navbar fluid={true} className="mx-auto max-w-[90rem]">
@@ -37,6 +42,7 @@ export default function AppHeader() {
             <Dropdown.Divider />
             <Dropdown.Item>Sign out</Dropdown.Item>
           </Dropdown>
+          {/* <Button onClick={() => setToggleModal(true)}>Login</Button> */}
           <Navbar.Toggle />
         </div>
         <Navbar.Collapse>

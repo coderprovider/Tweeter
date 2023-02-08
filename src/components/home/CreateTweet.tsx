@@ -11,7 +11,10 @@ export default function CreateTweet() {
       </h5>
 
       <div className="flex items-start gap-3">
-        <Avatar img="https://flowbite.com/docs/images/people/profile-picture-5.jpg" />
+        <Avatar
+          img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+          className="hidden sm:block"
+        />
 
         <form onSubmit={(e) => e.preventDefault()} className="flex-1 space-y-3">
           <Textarea placeholder="What's happening?" required={true} rows={2} />
@@ -25,7 +28,7 @@ export default function CreateTweet() {
                 label={
                   <h4 className="flex cursor-pointer items-center gap-2 text-blue-500">
                     <BsGlobe className="text-xl" />
-                    <span className="text-base font-semibold">
+                    <span className="hidden text-base font-semibold sm:block">
                       Everyone can reply
                     </span>
                   </h4>

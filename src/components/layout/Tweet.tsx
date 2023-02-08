@@ -12,7 +12,7 @@ import CommentBox from "./CommentBox";
 
 export default function Tweet() {
   return (
-    <li>
+    <li className="w-full">
       <h2 className="mb-2 flex items-center gap-2.5 text-gray-400">
         <FaRetweet className="text-lg" />
         <span className="text-sm">Daniel Jensen Retweeted</span>
@@ -40,7 +40,7 @@ export default function Tweet() {
             Voluptatibus, vitae.
           </p>
 
-          <figure className="relative h-80 w-full">
+          <figure className="relative h-60 w-full sm:h-80">
             <Image
               src="https://flowbite.com/docs/images/blog/image-1.jpg"
               alt="tweet cover"
@@ -55,22 +55,22 @@ export default function Tweet() {
             <span>234 Saved</span>
           </div>
 
-          <Button.Group className="flex justify-between border-0 border-b-2 border-solid border-gray-100 pb-3">
+          <Button.Group className="flex flex-wrap justify-between border-0 border-b-2 border-solid border-gray-100 pb-3">
             <Button color="gray" className="flex-1">
               <FaRegCommentAlt className="mr-3 text-xl" />
-              Comments
+              <span className="hidden sm:block">Comments</span>
             </Button>
             <Button color="gray" className="flex-1">
               <FaRetweet className="mr-3 text-xl" />
-              Retweets
+              <span className="hidden sm:block">Retweets</span>
             </Button>
             <Button color="gray" className="flex-1">
               <FaRegHeart className="mr-3 text-xl" />
-              Like
+              <span className="hidden sm:block">Like</span>
             </Button>
             <Button color="gray" className="flex-1">
               <FaRegBookmark className="mr-3 text-xl" />
-              Bookmark
+              <span className="hidden sm:block">Bookmark</span>
             </Button>
           </Button.Group>
 

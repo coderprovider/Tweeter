@@ -10,15 +10,15 @@ const Home: NextPage = () => {
   // const hello = api.example.hello.useQuery({ text: "from tRPC" });
 
   return (
-    <main className="mx-auto grid w-[80rem] grid-cols-4 gap-6 py-6">
-      <section className="col-span-3">
+    <main className="mx-auto flex w-[80rem] max-w-full flex-col-reverse gap-6 py-6 px-4 md:grid md:grid-cols-4">
+      <section className="md:col-span-3">
         <CreateTweet />
         <ul className="space-y-7 py-6">
           <Tweet />
           <Tweet />
         </ul>
       </section>
-      <aside className="col-span-1 space-y-6">
+      <aside className="space-y-6 md:col-span-1">
         <Trends />
         <ToFollow />
       </aside>

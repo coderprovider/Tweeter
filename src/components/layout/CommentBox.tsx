@@ -4,7 +4,10 @@ import { BiImageAlt } from "react-icons/bi";
 export default function CommentBox() {
   return (
     <form className="flex items-center gap-4">
-      <Avatar img="https://flowbite.com/docs/images/people/profile-picture-5.jpg" />
+      <Avatar
+        img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+        className="hidden sm:block"
+      />
       <fieldset className="relative flex-1">
         <TextInput
           type="text"

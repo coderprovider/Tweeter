@@ -15,7 +15,7 @@ export default function Profile() {
 
   return (
     <>
-      <figure className="relative h-72 w-full">
+      <figure className="relative h-72 w-full max-w-full">
         <Image
           src="https://flowbite.com/docs/images/blog/image-1.jpg"
           alt="tweet cover"
@@ -23,10 +23,10 @@ export default function Profile() {
           fill={true}
         />
       </figure>
-      <main className="mx-auto w-[80rem]">
+      <main className="mx-auto w-[80rem] max-w-full px-4">
         <UserBio setToggleModal={setToggleModal} />
 
-        <section className="mx-auto grid w-[80rem] grid-cols-4 gap-6 py-6">
+        <section className="mx-auto grid max-w-full grid-cols-1 gap-6 py-6 md:grid-cols-4">
           <div className="col-span-1 w-full">
             <ListGroup>
               <ListGroup.Item
@@ -43,7 +43,7 @@ export default function Profile() {
             </ListGroup>
           </div>
 
-          <ul className="col-span-3 space-y-7">
+          <ul className="space-y-7 md:col-span-3">
             <Tweet />
             <Tweet />
           </ul>
