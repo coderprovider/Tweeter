@@ -1,4 +1,5 @@
 import { Navbar, Dropdown, Avatar, Button } from "flowbite-react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 
@@ -7,6 +8,10 @@ interface Props {
 }
 
 export default function AppHeader({ setToggleModal }: Props) {
+  const { data: sessionData } = useSession();
+
+  console.log(sessionData);
+
   return (
     <header className="AppHeader w-full bg-white">
       <Navbar fluid={true} className="mx-auto max-w-[90rem]">
@@ -18,31 +23,36 @@ export default function AppHeader({ setToggleModal }: Props) {
           />
         </Link>
         <div className="flex md:order-2">
-          <Dropdown
-            arrowIcon={false}
-            inline={true}
-            label={
-              <Avatar
-                alt="User settings"
-                img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                rounded={true}
-              />
-            }
-          >
-            <Dropdown.Header>
-              <span className="block text-sm">Bonnie Green</span>
-              <span className="block truncate text-sm font-medium">
-                name@flowbite.com
-              </span>
-            </Dropdown.Header>
-            <Link href="/profile">
-              <Dropdown.Item>Profile</Dropdown.Item>
-            </Link>
-            <Dropdown.Item>Settings</Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item>Sign out</Dropdown.Item>
-          </Dropdown>
-          {/* <Button onClick={() => setToggleModal(true)}>Login</Button> */}
+          {sessionData ? (
+            <Dropdown
+              arrowIcon={false}
+              inline={true}
+              label={
+                <Avatar
+                  alt="User settings"
+                  img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                  rounded={true}
+                />
+              }
+            >
+              <Dropdown.Header>
+                <span className="block text-sm">Bonnie Green</span>
+                <span className="block truncate text-sm font-medium">
+                  name@flowbite.com
+                </span>
+              </Dropdown.Header>
+              <Link href="/profile">
+                <Dropdown.Item>Profile</Dropdown.Item>
+              </Link>
+              <Dropdown.Item>Settings</Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item onClick={() => void signOut()}>
+                Sign out
+              </Dropdown.Item>
+            </Dropdown>
+          ) : (
+            <Button onClick={() => setToggleModal(true)}>Login</Button>
+          )}
           <Navbar.Toggle />
         </div>
         <Navbar.Collapse>

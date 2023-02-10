@@ -1,4 +1,5 @@
 import { Button, Modal } from "flowbite-react";
+import { signIn } from "next-auth/react";
 import { Dispatch, SetStateAction } from "react";
 
 interface FollowingModalProps {
@@ -22,16 +23,20 @@ const FollowingModal = ({
       </Modal.Header>
 
       <Modal.Body className="styledScrollbar max-h-[548px] space-y-2.5 px-5">
-        <Button size="lg" color="failure" className="w-full">
+        <Button
+          size="lg"
+          color="failure"
+          className="w-full"
+          onClick={() => void signIn("google")}
+        >
           Google
         </Button>
-        <Button size="lg" className="w-full">
-          Twitter
-        </Button>
-        <Button size="lg" color="dark" className="w-full">
-          Github
-        </Button>
-        <Button size="lg" color="purple" className="w-full">
+        <Button
+          size="lg"
+          color="purple"
+          className="w-full"
+          onClick={() => void signIn("discord")}
+        >
           Discord
         </Button>
       </Modal.Body>
