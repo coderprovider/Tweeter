@@ -48,13 +48,21 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(auto()) @map("_id") @db.ObjectId
+    id            String        @id @default(auto()) @map("_id") @db.ObjectId
     name          String?
-    email         String?   @unique
+    email         String?       @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    Tweet         Tweet[]
+    Comment       Comment[]
+    Retweet       Retweet[]
+    Bookmark      Bookmark[]
+    TweetLike     TweetLike[]
+    CommentLike   CommentLike[]
+    Following     Following[]
+    Follower      Follower[]
 }
 
 model VerificationToken {
@@ -64,4 +72,78 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Tweet {
+    id         String      @id @default(auto()) @map("_id") @db.ObjectId
+    user       User        @relation(fields: [userId], references: [id])
+    userId     String      @db.ObjectId
+    image      String?
+    text       String
+    authorized Authorized
+    comments   Comment[]
+    retweets   Retweet[]
+    likes      TweetLike[]
+    Bookmark   Bookmark[]
+    createdAt  DateTime    @default(now())
+}
+
+model Comment {
+    id        String        @id @default(auto()) @map("_id") @db.ObjectId
+    Tweet     Tweet?        @relation(fields: [tweetId], references: [id])
+    tweetId   String?       @db.ObjectId
+    user      User          @relation(fields: [userId], references: [id])
+    userId    String        @db.ObjectId
+    image     String?
+    likes     CommentLike[]
+    createdAt DateTime      @default(now())
+}
+
+model Retweet {
+    id      String  @id @default(auto()) @map("_id") @db.ObjectId
+    Tweet   Tweet?  @relation(fields: [tweetId], references: [id])
+    tweetId String? @db.ObjectId
+    user    User    @relation(fields: [userId], references: [id])
+    userId  String  @db.ObjectId
+}
+
+model TweetLike {
+    id      String  @id @default(auto()) @map("_id") @db.ObjectId
+    user    User    @relation(fields: [userId], references: [id])
+    userId  String  @db.ObjectId
+    Tweet   Tweet?  @relation(fields: [tweetId], references: [id])
+    tweetId String? @db.ObjectId
+}
+
+model CommentLike {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    Comment   Comment? @relation(fields: [commentId], references: [id])
+    commentId String?  @db.ObjectId
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String   @db.ObjectId
+}
+
+model Bookmark {
+    id      String  @id @default(auto()) @map("_id") @db.ObjectId
+    user    User    @relation(fields: [userId], references: [id])
+    userId  String  @db.ObjectId
+    Tweet   Tweet?  @relation(fields: [tweetId], references: [id])
+    tweetId String? @db.ObjectId
+}
+
+model Following {
+    id     String @id @default(auto()) @map("_id") @db.ObjectId
+    user   User   @relation(fields: [userId], references: [id])
+    userId String @db.ObjectId
+}
+
+model Follower {
+    id     String @id @default(auto()) @map("_id") @db.ObjectId
+    user   User   @relation(fields: [userId], references: [id])
+    userId String @db.ObjectId
+}
+
+enum Authorized {
+    PUBLIC
+    FOLLOWER
 }
