@@ -10,8 +10,6 @@ interface Props {
 export default function AppHeader({ setToggleModal }: Props) {
   const { data: sessionData } = useSession();
 
-  console.log(sessionData);
-
   return (
     <header className="AppHeader w-full bg-white">
       <Navbar fluid={true} className="mx-auto max-w-[90rem]">
@@ -30,7 +28,10 @@ export default function AppHeader({ setToggleModal }: Props) {
               label={
                 <Avatar
                   alt="User settings"
-                  img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                  img={
+                    sessionData.user.image ||
+                    "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                  }
                   rounded={true}
                 />
               }

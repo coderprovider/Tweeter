@@ -1,42 +1,48 @@
-import { Sidebar } from "flowbite-react";
+import { Sidebar, Spinner } from "flowbite-react";
 import React from "react";
+import { api } from "../../utils/api";
 
 export default function Trends() {
+  const { data, isLoading, isError } = api.news.getNews.useQuery();
+
+  console.log(data);
+
   return (
-    <div className="styledScrollbar max-h-[480px] w-full">
-      <Sidebar aria-label="Default sidebar example" className="w-full">
-        <Sidebar.Items>
-          <Sidebar.ItemGroup>
-            <h4 className="mx-2 border-0 border-b-2 border-solid border-gray-200 pb-1 text-sm font-semibold text-black">
-              Trends for you
-            </h4>
-            <Sidebar.Item href="#" labelColor="alternative">
-              <h1 className="text-base font-semibold text-black">#Kanban</h1>
-              <p className="text-sm font-medium text-gray-400">213k Tweets</p>
-            </Sidebar.Item>
-            <Sidebar.Item href="#">
-              <h1 className="text-base font-semibold text-black">#Kanban</h1>
-              <p className="text-sm font-medium text-gray-400">213k Tweets</p>
-            </Sidebar.Item>
-            <Sidebar.Item href="#">
-              <h1 className="text-base font-semibold text-black">#Kanban</h1>
-              <p className="text-sm font-medium text-gray-400">213k Tweets</p>
-            </Sidebar.Item>
-            <Sidebar.Item href="#">
-              <h1 className="text-base font-semibold text-black">#Kanban</h1>
-              <p className="text-sm font-medium text-gray-400">213k Tweets</p>
-            </Sidebar.Item>
-            <Sidebar.Item href="#">
-              <h1 className="text-base font-semibold text-black">#Kanban</h1>
-              <p className="text-sm font-medium text-gray-400">213k Tweets</p>
-            </Sidebar.Item>
-            <Sidebar.Item href="#">
-              <h1 className="text-base font-semibold text-black">#Kanban</h1>
-              <p className="text-sm font-medium text-gray-400">213k Tweets</p>
-            </Sidebar.Item>
-          </Sidebar.ItemGroup>
-        </Sidebar.Items>
-      </Sidebar>
-    </div>
+    <ul className="w-full space-y-3 bg-white py-2.5">
+      <h4 className="mx-2 border-0 border-b-2 border-solid border-gray-200 pb-1 text-sm font-semibold text-black">
+        News for you
+      </h4>
+      {data ? (
+        data.articles.map((a, i) => (
+          <li key={i} className="flex gap-2 px-4">
+            <article className="">
+              <a
+                href={a.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block text-sm font-semibold leading-5 text-black hover:underline"
+              >
+                {a.description?.slice(0, 50)}...
+              </a>
+              <p className="mt-0.5 text-xs font-medium text-gray-400">
+                {a.source.name}
+              </p>
+            </article>
+            <img
+              src={a.urlToImage}
+              alt="news"
+              className="h-14 w-16 min-w-[4rem] object-cover"
+            />
+          </li>
+        ))
+      ) : (
+        <div className="text-center">
+          <Spinner aria-label="Default status example" size="lg" />
+        </div>
+      )}
+      <span className="block cursor-pointer px-4 text-sm font-semibold text-blue-600 hover:underline dark:text-blue-500">
+        View more
+      </span>
+    </ul>
   );
 }

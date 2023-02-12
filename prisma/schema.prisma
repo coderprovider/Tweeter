@@ -80,7 +80,7 @@ model Tweet {
     userId     String      @db.ObjectId
     image      String?
     text       String
-    authorized Authorized
+    authorized Authorized  @default(PUBLIC)
     comments   Comment[]
     retweets   Retweet[]
     likes      TweetLike[]
