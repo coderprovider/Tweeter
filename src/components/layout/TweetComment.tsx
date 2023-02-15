@@ -4,7 +4,7 @@ import { FaRegHeart } from "react-icons/fa";
 
 export default function TweetComment() {
   return (
-    <div className="mt-4 flex items-start gap-4">
+    <div className="mt-6 flex items-start gap-4">
       <Avatar
         img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
         className="hidden sm:block"

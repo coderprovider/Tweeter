@@ -1,11 +1,14 @@
 import { Sidebar, Spinner } from "flowbite-react";
-import React from "react";
+import React, { useState } from "react";
 import { api } from "../../utils/api";
 
 export default function Trends() {
-  const { data, isLoading, isError } = api.news.getNews.useQuery();
+  const { data, isError, error } = api.news.getNews.useQuery();
+  const [newsLimit, setNewsLimit] = useState<number>(5);
 
-  console.log(data);
+  if (isError) {
+    console.log(error);
+  }
 
   return (
     <ul className="w-full space-y-3 bg-white py-2.5">
@@ -13,7 +16,7 @@ export default function Trends() {
         News for you
       </h4>
       {data ? (
-        data.articles.map((a, i) => (
+        data.articles.slice(0, newsLimit).map((a, i) => (
           <li key={i} className="flex gap-2 px-4">
             <article className="">
               <a
@@ -40,7 +43,12 @@ export default function Trends() {
           <Spinner aria-label="Default status example" size="lg" />
         </div>
       )}
-      <span className="block cursor-pointer px-4 text-sm font-semibold text-blue-600 hover:underline dark:text-blue-500">
+      <span
+        onClick={() => setNewsLimit((prev) => prev + 5)}
+        className={`cursor-pointer px-4 text-sm font-semibold text-blue-600 hover:underline dark:text-blue-500 ${
+          newsLimit >= 20 || !data ? "hidden" : "block"
+        }`}
+      >
         View more
       </span>
     </ul>

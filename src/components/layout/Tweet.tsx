@@ -9,8 +9,16 @@ import Image from "next/image";
 import { BiImageAlt } from "react-icons/bi";
 import TweetComment from "./TweetComment";
 import CommentBox from "./CommentBox";
+import { useState } from "react";
+import dynamic from "next/dynamic";
+
+const CommentModal = dynamic(() => import("../home/CommentModal"), {
+  ssr: false,
+});
 
 export default function Tweet() {
+  const [toggleModal, setToggleModal] = useState<boolean>(false);
+
   return (
     <li className="w-full">
       <h2 className="mb-2 flex items-center gap-2.5 text-gray-400">
@@ -56,7 +64,11 @@ export default function Tweet() {
           </div>
 
           <Button.Group className="flex flex-wrap justify-between border-0 border-b-2 border-solid border-gray-100 pb-3">
-            <Button color="gray" className="flex-1">
+            <Button
+              color="gray"
+              className="flex-1"
+              onClick={() => setToggleModal(true)}
+            >
               <FaRegCommentAlt className="mr-3 text-xl" />
               <span className="hidden sm:block">Comments</span>
             </Button>
@@ -74,10 +86,10 @@ export default function Tweet() {
             </Button>
           </Button.Group>
 
-          <CommentBox />
-
-          <TweetComment />
-          <TweetComment />
+          <CommentModal
+            toggleModal={toggleModal}
+            setToggleModal={setToggleModal}
+          />
         </Card>
       </article>
     </li>

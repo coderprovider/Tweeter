@@ -1,6 +1,7 @@
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import CreateTweet from "../components/home/CreateTweet";
+import NoTweet from "../components/home/NoTweet";
 import ToFollow from "../components/home/ToFollow";
 import Trends from "../components/home/Trends";
 import Tweet from "../components/layout/Tweet";
@@ -8,6 +9,9 @@ import { api } from "../utils/api";
 
 const Home: NextPage = () => {
   // const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const { data } = api.tweet.getTweets.useQuery();
+
+  console.log(data);
 
   return (
     <main className="mx-auto flex w-[80rem] max-w-full flex-col-reverse gap-6 py-6 px-4 md:grid md:grid-cols-4">
@@ -17,6 +21,7 @@ const Home: NextPage = () => {
           <Tweet />
           <Tweet />
         </ul>
+        <NoTweet />
       </section>
       <aside className="space-y-6 md:col-span-1">
         <Trends />

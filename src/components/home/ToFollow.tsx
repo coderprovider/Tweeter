@@ -6,7 +6,7 @@ export default function ToFollow() {
     <div className="styledScrollbar max-h-[435.6px] w-full">
       <Card>
         <div className="flex items-center justify-between border-0 border-b-2 border-solid border-gray-200 pb-1.5">
-          <h4 className="text-sm font-semibold text-black">Trends for you</h4>
+          <h4 className="text-sm font-semibold text-black">Who to follow</h4>
           {/* <a
             href="#"
             className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500"

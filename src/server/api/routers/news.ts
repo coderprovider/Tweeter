@@ -9,6 +9,6 @@ export const newsRouter = createTRPCRouter({
     const res = await axios.get<RootArticle>(
       `https://newsapi.org/v2/top-headlines?country=us&apiKey=${process.env.NEWS_API_KEY}`
     );
-    return { ...res.data, articles: res.data.articles.slice(0, 5) };
+    return res.data;
   }),
 });
