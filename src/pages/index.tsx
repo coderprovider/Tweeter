@@ -1,31 +1,45 @@
-import { type NextPage } from "next";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import { getSession } from "next-auth/react";
+import superjson from "superjson";
 import CreateTweet from "../components/home/CreateTweet";
 import NoTweet from "../components/home/NoTweet";
 import ToFollow from "../components/home/ToFollow";
 import Trends from "../components/home/Trends";
 import Tweet from "../components/layout/Tweet";
+import { appRouter } from "../server/api/root";
+import { createInnerTRPCContext } from "../server/api/trpc";
 import { api } from "../utils/api";
 
-const Home: NextPage = () => {
-  // const hello = api.example.hello.useQuery({ text: "from tRPC" });
-  const { data } = api.tweet.getTweets.useQuery();
-
-  console.log(data);
+const Home = ({
+  userSession,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  const { data: allTweets } = api.tweet.getTweets.useQuery(
+    undefined, // no input
+    { enabled: userSession?.user !== undefined }
+  );
 
   return (
     <main className="mx-auto flex w-[80rem] max-w-full flex-col-reverse gap-6 py-6 px-4 md:grid md:grid-cols-4">
       <section className="md:col-span-3">
-        <CreateTweet />
-        <ul className="space-y-7 py-6">
-          <Tweet />
-          <Tweet />
-        </ul>
-        <NoTweet />
+        {userSession?.user !== undefined ? (
+          <>
+            <CreateTweet />
+            <ul className="space-y-7 py-6">
+              {allTweets ? (
+                allTweets.map((t) => <Tweet key={t.id} tweet={t} />)
+              ) : (
+                <NoTweet />
+              )}
+            </ul>
+          </>
+        ) : (
+          <NoTweet />
+        )}
       </section>
       <aside className="space-y-6 md:col-span-1">
         <Trends />
-        <ToFollow />
+        {userSession?.user && <ToFollow />}
       </aside>
     </main>
   );
@@ -33,26 +47,21 @@ const Home: NextPage = () => {
 
 export default Home;
 
-const AuthShowcase: React.FC = () => {
-  const { data: sessionData } = useSession();
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const userSession = await getSession(context);
 
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined }
-  );
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: createInnerTRPCContext({ session: userSession }),
+    transformer: superjson,
+  });
 
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
-      </p>
-      <button
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        {sessionData ? "Sign out" : "Sign in"}
-      </button>
-    </div>
-  );
-};
+  await ssg.tweet.getTweets.prefetch();
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      userSession,
+    },
+  };
+}

@@ -61,8 +61,10 @@ model User {
     Bookmark      Bookmark[]
     TweetLike     TweetLike[]
     CommentLike   CommentLike[]
-    Following     Following[]
-    Follower      Follower[]
+    Follower      Follower[]    @relation("usersFollower")
+    followingBy   Follower[]    @relation("userWhoIsFollowing")
+    Following     Following[]   @relation("userWhoIsFollowing")
+    followedUser  Following[]   @relation("followedUser")
 }
 
 model VerificationToken {
@@ -95,6 +97,7 @@ model Comment {
     user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String        @db.ObjectId
     image     String?
+    text      String
     likes     CommentLike[]
     createdAt DateTime      @default(now())
 }
@@ -132,15 +135,19 @@ model Bookmark {
 }
 
 model Following {
-    id     String @id @default(auto()) @map("_id") @db.ObjectId
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId String @db.ObjectId
+    id             String @id @default(auto()) @map("_id") @db.ObjectId
+    user           User   @relation(name: "userWhoIsFollowing", fields: [userId], references: [id], onDelete: Cascade)
+    userId         String @db.ObjectId
+    followedUser   User   @relation(name: "followedUser", fields: [followedUserId], references: [id], onDelete: Cascade)
+    followedUserId String @db.ObjectId
 }
 
 model Follower {
-    id     String @id @default(auto()) @map("_id") @db.ObjectId
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId String @db.ObjectId
+    id            String @id @default(auto()) @map("_id") @db.ObjectId
+    user          User   @relation(name: "usersFollower", fields: [userId], references: [id], onDelete: Cascade)
+    userId        String @db.ObjectId
+    followingBy   User   @relation(name: "userWhoIsFollowing", fields: [followingById], references: [id], onDelete: Cascade)
+    followingById String @db.ObjectId
 }
 
 enum Authorized {

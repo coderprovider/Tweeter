@@ -2,7 +2,7 @@ import { Card } from "flowbite-react";
 
 export default function NoTweet() {
   return (
-    <Card className="mt-10">
+    <Card>
       <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
         Welcome to Tweeter!
       </h5>

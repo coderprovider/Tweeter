@@ -10,7 +10,7 @@
 const config = {
   reactStrictMode: true,
   images: {
-    domains: ["flowbite.com"],
+    domains: ["flowbite.com", "res.cloudinary.com"],
   },
   /**
    * If you have the "experimental: { appDir: true }" setting enabled, then you

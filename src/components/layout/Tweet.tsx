@@ -11,12 +11,18 @@ import TweetComment from "./TweetComment";
 import CommentBox from "./CommentBox";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { RouterOutputs } from "../../utils/api";
+import { formatDate } from "../../utils/utilityFunctions";
 
 const CommentModal = dynamic(() => import("../home/CommentModal"), {
   ssr: false,
 });
 
-export default function Tweet() {
+interface TweetProps {
+  tweet: RouterOutputs["tweet"]["getTweets"][number];
+}
+
+export default function Tweet({ tweet }: TweetProps) {
   const [toggleModal, setToggleModal] = useState<boolean>(false);
 
   return (
@@ -29,38 +35,43 @@ export default function Tweet() {
       <article className="max-w-full">
         <Card>
           <div className="flex items-center gap-4">
-            <Avatar img="https://flowbite.com/docs/images/people/profile-picture-5.jpg" />
+            <Avatar
+              img={
+                tweet.user.image ||
+                "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+              }
+            />
             <div>
               <h3 className="text-base font-bold capitalize text-black">
-                peyton leyons
+                {tweet.user.name}
               </h3>
               <time
-                dateTime="1985-12-30"
+                dateTime={tweet.createdAt as unknown as string}
                 className="text-xs font-medium text-gray-400"
               >
-                December 30, 1985
+                {formatDate(tweet.createdAt)}
               </time>
             </div>
           </div>
 
-          <p className="text-base font-medium text-gray-600">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-            Voluptatibus, vitae.
-          </p>
+          <p className="text-base font-medium text-gray-600">{tweet.text}</p>
 
-          <figure className="relative h-60 w-full sm:h-80">
-            <Image
-              src="https://flowbite.com/docs/images/blog/image-1.jpg"
-              alt="tweet cover"
-              className="object-cover"
-              fill={true}
-            />
-          </figure>
+          {tweet.image && (
+            <figure className="relative h-60 w-full sm:h-80">
+              <Image
+                src={tweet.image}
+                alt="tweet cover"
+                className="object-contain"
+                fill={true}
+              />
+            </figure>
+          )}
 
           <div className="flex items-center justify-end space-x-4 border-0 border-b-2 border-solid border-gray-100 pb-1 text-xs font-medium text-gray-400">
-            <span>449 Comments</span>
-            <span>59k Retweets</span>
-            <span>234 Saved</span>
+            <span>{tweet._count.comments} Comments</span>
+            <span>{tweet._count.retweets} Retweets</span>
+            <span>{tweet._count.Bookmark} Saved</span>
+            <span>{tweet._count.likes} Liked</span>
           </div>
 
           <Button.Group className="flex flex-wrap justify-between border-0 border-b-2 border-solid border-gray-100 pb-3">

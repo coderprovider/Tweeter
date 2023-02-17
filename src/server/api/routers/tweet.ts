@@ -1,6 +1,6 @@
 import { z } from "zod";
-
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import cloudinary from "../../../utils/cloudinaryConfig";
 
 export const tweetRouter = createTRPCRouter({
   createTweet: protectedProcedure
@@ -12,6 +12,10 @@ export const tweetRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx: { prisma, session } }) => {
+      const photoUrl = input.image
+        ? await cloudinary.uploader.upload(input.image)
+        : undefined;
+
       const newTweet = await prisma.tweet.create({
         data: {
           user: {
@@ -19,7 +23,7 @@ export const tweetRouter = createTRPCRouter({
               id: session.user.id,
             },
           },
-          image: input.image,
+          image: photoUrl?.url,
           text: input.text,
           authorized: input.authorized,
         },
@@ -42,12 +46,45 @@ export const tweetRouter = createTRPCRouter({
         ? followingUser.Following.map((f) => f.userId)
         : [];
 
+      const reusedWhere = {
+        user: {
+          id: session.user.id,
+        },
+      };
+
       const tweets = await tx.tweet.findMany({
         where: {
           user: {
             id: {
               in: [session.user.id, ...following],
             },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          user: true,
+          _count: {
+            select: {
+              retweets: true,
+              likes: true,
+              Bookmark: true,
+              comments: true,
+            },
+          },
+          retweets: {
+            where: {
+              user: {
+                id: session.user.id,
+              },
+            },
+          },
+          likes: {
+            where: reusedWhere,
+          },
+          Bookmark: {
+            where: reusedWhere,
           },
         },
       });
@@ -66,4 +103,10 @@ export const tweetRouter = createTRPCRouter({
 
       return tweet;
     }),
+
+  likeTweet: protectedProcedure
+    .input(z.object({ liked: z.boolean(), twitterID: z.string() }))
+    .mutation(
+      async ({ ctx: { prisma, session }, input: { liked, twitterID } }) => {}
+    ),
 });

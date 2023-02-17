@@ -3,27 +3,54 @@ import { Card, Button, Avatar, Textarea } from "flowbite-react";
 import { BiImageAlt } from "react-icons/bi";
 import { BsGlobe } from "react-icons/bs";
 import { api } from "../../utils/api";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
 
 export default function CreateTweet() {
+  // ! create tweet mutation
   const { mutate, isLoading, error } = api.tweet.createTweet.useMutation({
     onSuccess: () => {
       setText("");
+      setPhoto({ name: "", url: "" });
       toast.success("Created successfully😊");
     },
     onError: () => {
       toast.error("Server Error. Please try again later😓");
     },
   });
+
+  // ! input state
   const [who, setWho] = useState<"FOLLOWER" | "PUBLIC">("PUBLIC");
   const [text, setText] = useState<string>("");
+  const [photo, setPhoto] = useState({ name: "", url: "" });
 
-  console.log(error);
+  // ! image input reference
+  const photoFileRef = useRef<HTMLInputElement | null>(null);
 
+  if (error) {
+    console.log(error);
+  }
+
+  // ! get temporary image url
+  function handleImageChange(file: File | undefined) {
+    if (file === undefined) return;
+    const reader = (readFile: File) =>
+      new Promise<string>((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.onload = () => resolve(fileReader.result as string);
+        fileReader.readAsDataURL(readFile);
+      });
+
+    reader(file).then((result: string) =>
+      setPhoto({ name: file.name, url: result })
+    );
+  }
+
+  // ! create the tweet
   function createTweet() {
     if (!text) return toast.error("Your tweet is empty");
-    mutate({ text, authorized: who });
+    mutate({ text, authorized: who, image: photo.url });
   }
 
   return (
@@ -46,9 +73,32 @@ export default function CreateTweet() {
             required={true}
             rows={2}
           />
+          {photo.url && (
+            <div className="relative h-72 w-full">
+              <Image
+                src={photo.url}
+                alt="tweet cover"
+                fill
+                className="object-contain"
+              />
+            </div>
+          )}
           <fieldset className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <BiImageAlt className="cursor-pointer text-2xl text-blue-500" />
+              <BiImageAlt
+                onClick={() => photoFileRef.current?.click()}
+                className="cursor-pointer text-2xl text-blue-500"
+              />
+              <input
+                type="file"
+                ref={photoFileRef}
+                className="hidden"
+                onChange={(e) =>
+                  handleImageChange(
+                    e.target.files ? e.target.files[0] : undefined
+                  )
+                }
+              />
 
               <Dropdown
                 arrowIcon={false}
@@ -84,7 +134,12 @@ export default function CreateTweet() {
                 </Dropdown.Item>
               </Dropdown>
             </div>
-            <Button onClick={createTweet}>
+            <Button
+              onClick={createTweet}
+              className={
+                isLoading ? "pointer-events-none" : "pointer-events-auto"
+              }
+            >
               {isLoading ? (
                 <>
                   <div className="mr-3">
