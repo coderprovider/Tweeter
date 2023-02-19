@@ -4,15 +4,27 @@ import {
   FaRegHeart,
   FaRegBookmark,
 } from "react-icons/fa";
-import { Card, Avatar, Button, TextInput } from "flowbite-react";
+import {
+  Card,
+  Avatar,
+  Button,
+  TextInput,
+  Dropdown,
+  Spinner,
+} from "flowbite-react";
 import Image from "next/image";
 import { BiImageAlt } from "react-icons/bi";
 import TweetComment from "./TweetComment";
 import CommentBox from "./CommentBox";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { RouterOutputs } from "../../utils/api";
+import { api, RouterOutputs } from "../../utils/api";
 import { formatDate } from "../../utils/utilityFunctions";
+import { BsThreeDots } from "react-icons/bs";
+import { Session } from "next-auth";
+import { toast } from "react-hot-toast";
+import { QueryClient } from "@tanstack/react-query";
+import useDeleteTweet from "../../hooks/tweet/useDeleteTweet";
 
 const CommentModal = dynamic(() => import("../home/CommentModal"), {
   ssr: false,
@@ -20,10 +32,22 @@ const CommentModal = dynamic(() => import("../home/CommentModal"), {
 
 interface TweetProps {
   tweet: RouterOutputs["tweet"]["getTweets"][number];
+  userSession: Session | null;
+  queryClient: QueryClient;
 }
 
-export default function Tweet({ tweet }: TweetProps) {
+export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
   const [toggleModal, setToggleModal] = useState<boolean>(false);
+
+  // ! delete tweet mutation
+  const { mutate: deleteTweet, isLoading: tweetDeleteLoading } = useDeleteTweet(
+    { queryClient }
+  );
+
+  // ! delete tweet function
+  function tweetDelete() {
+    deleteTweet({ tweetID: tweet.id, imageID: tweet.imageID ?? undefined });
+  }
 
   return (
     <li className="w-full">
@@ -34,24 +58,48 @@ export default function Tweet({ tweet }: TweetProps) {
 
       <article className="max-w-full">
         <Card>
-          <div className="flex items-center gap-4">
-            <Avatar
-              img={
-                tweet.user.image ||
-                "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-              }
-            />
-            <div>
-              <h3 className="text-base font-bold capitalize text-black">
-                {tweet.user.name}
-              </h3>
-              <time
-                dateTime={tweet.createdAt as unknown as string}
-                className="text-xs font-medium text-gray-400"
-              >
-                {formatDate(tweet.createdAt)}
-              </time>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Avatar
+                img={
+                  tweet.user.image ||
+                  "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                }
+              />
+              <div>
+                <h3 className="text-base font-bold capitalize text-black">
+                  {tweet.user.name}
+                </h3>
+                <time
+                  dateTime={tweet.createdAt as unknown as string}
+                  className="text-xs font-medium text-gray-400"
+                >
+                  {formatDate(tweet.createdAt)}
+                </time>
+              </div>
             </div>
+
+            {userSession?.user.id === tweet.user.id && (
+              <Dropdown
+                label={<BsThreeDots />}
+                dismissOnClick={false}
+                arrowIcon={false}
+                inline={true}
+                className={
+                  tweetDeleteLoading
+                    ? "pointer-events-none"
+                    : "pointer-events-auto"
+                }
+              >
+                <Dropdown.Item onClick={tweetDelete}>
+                  {tweetDeleteLoading ? (
+                    <Spinner aria-label="Default status example" />
+                  ) : (
+                    "Delete"
+                  )}
+                </Dropdown.Item>
+              </Dropdown>
+            )}
           </div>
 
           <p className="text-base font-medium text-gray-600">{tweet.text}</p>
@@ -83,15 +131,28 @@ export default function Tweet({ tweet }: TweetProps) {
               <FaRegCommentAlt className="mr-3 text-xl" />
               <span className="hidden sm:block">Comments</span>
             </Button>
-            <Button color="gray" className="flex-1">
+            <Button
+              color="gray"
+              className={`flex-1 ${
+                tweet.retweets.length === 1 && "text-green-500"
+              }`}
+            >
               <FaRetweet className="mr-3 text-xl" />
               <span className="hidden sm:block">Retweets</span>
             </Button>
-            <Button color="gray" className="flex-1">
+            <Button
+              color="gray"
+              className={`flex-1 ${tweet.likes.length === 1 && "text-red-500"}`}
+            >
               <FaRegHeart className="mr-3 text-xl" />
               <span className="hidden sm:block">Like</span>
             </Button>
-            <Button color="gray" className="flex-1">
+            <Button
+              color="gray"
+              className={`flex-1 ${
+                tweet.Bookmark.length === 1 && "text-blue-500"
+              }`}
+            >
               <FaRegBookmark className="mr-3 text-xl" />
               <span className="hidden sm:block">Bookmark</span>
             </Button>

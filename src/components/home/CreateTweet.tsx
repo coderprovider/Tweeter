@@ -2,35 +2,32 @@ import { Dropdown, Spinner } from "flowbite-react";
 import { Card, Button, Avatar, Textarea } from "flowbite-react";
 import { BiImageAlt } from "react-icons/bi";
 import { BsGlobe } from "react-icons/bs";
-import { api } from "../../utils/api";
+import { api, RouterOutputs } from "../../utils/api";
 import { useState, useRef } from "react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
+import { QueryClient } from "@tanstack/react-query";
+import useCreateTweet from "../../hooks/tweet/useCreateTweet";
 
-export default function CreateTweet() {
-  // ! create tweet mutation
-  const { mutate, isLoading, error } = api.tweet.createTweet.useMutation({
-    onSuccess: () => {
-      setText("");
-      setPhoto({ name: "", url: "" });
-      toast.success("Created successfully😊");
-    },
-    onError: () => {
-      toast.error("Server Error. Please try again later😓");
-    },
-  });
+interface CreateTweetProps {
+  queryClient: QueryClient;
+}
 
-  // ! input state
+export default function CreateTweet({ queryClient }: CreateTweetProps) {
+  // ! state
   const [who, setWho] = useState<"FOLLOWER" | "PUBLIC">("PUBLIC");
   const [text, setText] = useState<string>("");
   const [photo, setPhoto] = useState({ name: "", url: "" });
 
+  // ! create tweet mutation
+  const { mutate, isLoading } = useCreateTweet({
+    queryClient,
+    setText,
+    setPhoto,
+  });
+
   // ! image input reference
   const photoFileRef = useRef<HTMLInputElement | null>(null);
-
-  if (error) {
-    console.log(error);
-  }
 
   // ! get temporary image url
   function handleImageChange(file: File | undefined) {

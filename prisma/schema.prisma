@@ -81,6 +81,7 @@ model Tweet {
     user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId     String      @db.ObjectId
     image      String?
+    imageID    String?
     text       String
     authorized Authorized  @default(PUBLIC)
     comments   Comment[]
@@ -97,6 +98,7 @@ model Comment {
     user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String        @db.ObjectId
     image     String?
+    imageID   String?
     text      String
     likes     CommentLike[]
     createdAt DateTime      @default(now())

@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
@@ -18,16 +19,24 @@ const Home = ({
     undefined, // no input
     { enabled: userSession?.user !== undefined }
   );
+  const queryClient = useQueryClient();
 
   return (
     <main className="mx-auto flex w-[80rem] max-w-full flex-col-reverse gap-6 py-6 px-4 md:grid md:grid-cols-4">
       <section className="md:col-span-3">
         {userSession?.user !== undefined ? (
           <>
-            <CreateTweet />
+            <CreateTweet queryClient={queryClient} />
             <ul className="space-y-7 py-6">
               {allTweets ? (
-                allTweets.map((t) => <Tweet key={t.id} tweet={t} />)
+                allTweets.map((t) => (
+                  <Tweet
+                    key={t.id}
+                    tweet={t}
+                    userSession={userSession}
+                    queryClient={queryClient}
+                  />
+                ))
               ) : (
                 <NoTweet />
               )}
