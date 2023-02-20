@@ -37,9 +37,9 @@ export default function AppHeader({ setToggleModal }: Props) {
               }
             >
               <Dropdown.Header>
-                <span className="block text-sm">Bonnie Green</span>
+                <span className="block text-sm">{sessionData.user.name}</span>
                 <span className="block truncate text-sm font-medium">
-                  name@flowbite.com
+                  {sessionData.user.email}
                 </span>
               </Dropdown.Header>
               <Link href="/profile">

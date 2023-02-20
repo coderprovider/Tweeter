@@ -1,30 +1,22 @@
+import { QueryClient } from "@tanstack/react-query";
+import { Avatar, Button, Card, Dropdown, Spinner } from "flowbite-react";
+import { Session } from "next-auth";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useState } from "react";
+import { BsThreeDots } from "react-icons/bs";
 import {
-  FaRetweet,
+  FaRegBookmark,
   FaRegCommentAlt,
   FaRegHeart,
-  FaRegBookmark,
+  FaRetweet,
 } from "react-icons/fa";
-import {
-  Card,
-  Avatar,
-  Button,
-  TextInput,
-  Dropdown,
-  Spinner,
-} from "flowbite-react";
-import Image from "next/image";
-import { BiImageAlt } from "react-icons/bi";
-import TweetComment from "./TweetComment";
-import CommentBox from "./CommentBox";
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import { api, RouterOutputs } from "../../utils/api";
-import { formatDate } from "../../utils/utilityFunctions";
-import { BsThreeDots } from "react-icons/bs";
-import { Session } from "next-auth";
-import { toast } from "react-hot-toast";
-import { QueryClient } from "@tanstack/react-query";
+import useBookmarkTweet from "../../hooks/tweet/useBookmarkTweet";
 import useDeleteTweet from "../../hooks/tweet/useDeleteTweet";
+import useLikeTweet from "../../hooks/tweet/useLikeTweet";
+import useRetweetTweet from "../../hooks/tweet/useRetweetTweet";
+import { RouterOutputs } from "../../utils/api";
+import { formatDate } from "../../utils/utilityFunctions";
 
 const CommentModal = dynamic(() => import("../home/CommentModal"), {
   ssr: false,
@@ -32,7 +24,7 @@ const CommentModal = dynamic(() => import("../home/CommentModal"), {
 
 interface TweetProps {
   tweet: RouterOutputs["tweet"]["getTweets"][number];
-  userSession: Session | null;
+  userSession: Session;
   queryClient: QueryClient;
 }
 
@@ -44,9 +36,42 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
     { queryClient }
   );
 
+  // ! like tweet mutation
+  const { mutate: likeTweet } = useLikeTweet({
+    queryClient,
+    userID: userSession.user.id,
+  });
+
+  // ! bookmark tweet mutation
+  const { mutate: bookmarkTweet } = useBookmarkTweet({
+    queryClient,
+    userID: userSession.user.id,
+  });
+
+  // ! retweet tweet mutation
+  const { mutate: retweetTweet } = useRetweetTweet({
+    queryClient,
+    userID: userSession.user.id,
+  });
+
   // ! delete tweet function
   function tweetDelete() {
     deleteTweet({ tweetID: tweet.id, imageID: tweet.imageID ?? undefined });
+  }
+
+  // ! like tweet function
+  function tweetLike() {
+    likeTweet({ likeID: tweet.likes[0]?.id, twitterID: tweet.id });
+  }
+
+  // ! bookmark tweet function
+  function tweetBookmark() {
+    bookmarkTweet({ bookmarkID: tweet.Bookmark[0]?.id, twitterID: tweet.id });
+  }
+
+  // ! retweet tweet function
+  function tweetRetweet() {
+    retweetTweet({ retweetID: tweet.retweets[0]?.id, twitterID: tweet.id });
   }
 
   return (
@@ -132,23 +157,26 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
               <span className="hidden sm:block">Comments</span>
             </Button>
             <Button
-              color="gray"
+              onClick={tweetRetweet}
+              color=""
               className={`flex-1 ${
                 tweet.retweets.length === 1 && "text-green-500"
               }`}
             >
               <FaRetweet className="mr-3 text-xl" />
-              <span className="hidden sm:block">Retweets</span>
+              <span className="hidden sm:block">Retweet</span>
             </Button>
             <Button
-              color="gray"
+              onClick={tweetLike}
+              color=""
               className={`flex-1 ${tweet.likes.length === 1 && "text-red-500"}`}
             >
               <FaRegHeart className="mr-3 text-xl" />
               <span className="hidden sm:block">Like</span>
             </Button>
             <Button
-              color="gray"
+              onClick={tweetBookmark}
+              color=""
               className={`flex-1 ${
                 tweet.Bookmark.length === 1 && "text-blue-500"
               }`}
@@ -161,6 +189,9 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
           <CommentModal
             toggleModal={toggleModal}
             setToggleModal={setToggleModal}
+            tweetID={tweet.id}
+            queryClient={queryClient}
+            userSession={userSession}
           />
         </Card>
       </article>

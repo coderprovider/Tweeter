@@ -145,18 +145,14 @@ export const tweetRouter = createTRPCRouter({
   likeTweet: protectedProcedure
     .input(
       z.object({
-        liked: z.boolean(),
         likeID: z.string().optional(),
         twitterID: z.string(),
       })
     )
     .mutation(
-      async ({
-        ctx: { prisma, session },
-        input: { liked, likeID, twitterID },
-      }) => {
+      async ({ ctx: { prisma, session }, input: { likeID, twitterID } }) => {
         try {
-          if (liked && likeID) {
+          if (likeID) {
             const deletedLike = await prisma.tweetLike.delete({
               where: {
                 id: likeID,
@@ -192,7 +188,6 @@ export const tweetRouter = createTRPCRouter({
   bookmarkTweet: protectedProcedure
     .input(
       z.object({
-        bookmarked: z.boolean(),
         bookmarkID: z.string().optional(),
         twitterID: z.string(),
       })
@@ -200,10 +195,10 @@ export const tweetRouter = createTRPCRouter({
     .mutation(
       async ({
         ctx: { session, prisma },
-        input: { bookmarked, bookmarkID, twitterID },
+        input: { bookmarkID, twitterID },
       }) => {
         try {
-          if (bookmarked && bookmarkID) {
+          if (bookmarkID) {
             const deletedBookmark = await prisma.bookmark.delete({
               where: {
                 id: bookmarkID,
@@ -238,18 +233,14 @@ export const tweetRouter = createTRPCRouter({
   retweetTweet: protectedProcedure
     .input(
       z.object({
-        retweeted: z.boolean(),
         retweetID: z.string().optional(),
         twitterID: z.string(),
       })
     )
     .mutation(
-      async ({
-        ctx: { session, prisma },
-        input: { retweeted, retweetID, twitterID },
-      }) => {
+      async ({ ctx: { session, prisma }, input: { retweetID, twitterID } }) => {
         try {
-          if (retweeted && retweetID) {
+          if (retweetID) {
             const deletedRetweet = await prisma.retweet.delete({
               where: {
                 id: retweetID,

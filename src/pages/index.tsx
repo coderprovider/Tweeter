@@ -26,7 +26,7 @@ const Home = ({
       <section className="md:col-span-3">
         {userSession?.user !== undefined ? (
           <>
-            <CreateTweet queryClient={queryClient} />
+            <CreateTweet queryClient={queryClient} userSession={userSession} />
             <ul className="space-y-7 py-6">
               {allTweets ? (
                 allTweets.map((t) => (

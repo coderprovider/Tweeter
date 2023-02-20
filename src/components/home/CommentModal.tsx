@@ -1,14 +1,38 @@
-import { Alert, Modal } from "flowbite-react";
+import { QueryClient } from "@tanstack/react-query";
+import { Alert, Modal, Spinner } from "flowbite-react";
+import { Session } from "next-auth";
 import { Dispatch, SetStateAction } from "react";
+import { toast } from "react-hot-toast";
+import { api } from "../../utils/api";
 import CommentBox from "../layout/CommentBox";
 import TweetComment from "../layout/TweetComment";
 
-interface FollowingModalProps {
+interface CommentModalProps {
   toggleModal: boolean;
   setToggleModal: Dispatch<SetStateAction<boolean>>;
+  tweetID: string;
+  queryClient: QueryClient;
+  userSession: Session;
 }
 
-const CommentModal = ({ toggleModal, setToggleModal }: FollowingModalProps) => {
+const CommentModal = ({
+  toggleModal,
+  setToggleModal,
+  tweetID,
+  queryClient,
+  userSession,
+}: CommentModalProps) => {
+  // ! get comments query
+  const { data: allComments, isLoading } = api.comment.getComments.useQuery(
+    tweetID,
+    {
+      onError: (err) => {
+        console.log(err);
+        toast.error("Server error. Please try again later😓");
+      },
+    }
+  );
+
   return (
     <Modal
       dismissible={true}
@@ -20,19 +44,31 @@ const CommentModal = ({ toggleModal, setToggleModal }: FollowingModalProps) => {
         Comments
       </Modal.Header>
 
-      {/* <ul className="styledScrollbar max-h-[548px] px-5"></ul> */}
       <Modal.Body className="styledScrollbar max-h-[600px]">
-        <CommentBox />
+        <CommentBox
+          userSession={userSession}
+          queryClient={queryClient}
+          tweetID={tweetID}
+        />
 
-        {/* <TweetComment />
-        <TweetComment /> */}
-
-        <Alert color="info" className="mt-6">
-          <span>
-            <span className="font-medium">No comments!</span> No comments to
-            show!!!.
-          </span>
-        </Alert>
+        {isLoading ? (
+          <div className="mt-6 flex items-center">
+            <Spinner size="lg" aria-label="Default status example" />
+          </div>
+        ) : allComments === undefined || allComments.length === 0 ? (
+          <Alert color="info" className="mt-6">
+            <span>
+              <span className="font-medium">No comments!</span> No comments to
+              show!!!.
+            </span>
+          </Alert>
+        ) : (
+          <>
+            {allComments.map((c) => (
+              <TweetComment key={c.id} comment={c} />
+            ))}
+          </>
+        )}
       </Modal.Body>
     </Modal>
   );

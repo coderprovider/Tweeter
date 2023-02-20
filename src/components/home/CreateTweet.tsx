@@ -8,12 +8,17 @@ import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { QueryClient } from "@tanstack/react-query";
 import useCreateTweet from "../../hooks/tweet/useCreateTweet";
+import { Session } from "next-auth";
 
 interface CreateTweetProps {
   queryClient: QueryClient;
+  userSession: Session;
 }
 
-export default function CreateTweet({ queryClient }: CreateTweetProps) {
+export default function CreateTweet({
+  queryClient,
+  userSession,
+}: CreateTweetProps) {
   // ! state
   const [who, setWho] = useState<"FOLLOWER" | "PUBLIC">("PUBLIC");
   const [text, setText] = useState<string>("");
@@ -58,7 +63,11 @@ export default function CreateTweet({ queryClient }: CreateTweetProps) {
 
       <div className="flex items-start gap-3">
         <Avatar
-          img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+          img={
+            userSession.user.image
+              ? userSession.user.image
+              : "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+          }
           className="hidden sm:block"
         />
 

@@ -4,15 +4,15 @@ import cloudinary from "../../../utils/cloudinaryConfig";
 import { formatError } from "../../../utils/utilityFunctions";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
-export const exampleRouter = createTRPCRouter({
+export const commentRouter = createTRPCRouter({
   getComments: protectedProcedure
     .input(z.string())
-    .query(async ({ ctx: { prisma }, input: twitterID }) => {
+    .query(async ({ ctx: { prisma }, input: tweetID }) => {
       try {
         const comments = await prisma.comment.findMany({
           where: {
             Tweet: {
-              id: twitterID,
+              id: tweetID,
             },
           },
           orderBy: {
@@ -39,13 +39,13 @@ export const exampleRouter = createTRPCRouter({
       z.object({
         comment: z.string(),
         image: z.string(),
-        twitterID: z.string(),
+        tweetID: z.string(),
       })
     )
     .mutation(
       async ({
         ctx: { prisma, session },
-        input: { comment, image, twitterID },
+        input: { comment, image, tweetID },
       }) => {
         try {
           const photoUrl = image
@@ -61,7 +61,7 @@ export const exampleRouter = createTRPCRouter({
               },
               Tweet: {
                 connect: {
-                  id: twitterID,
+                  id: tweetID,
                 },
               },
               text: comment,
@@ -70,7 +70,6 @@ export const exampleRouter = createTRPCRouter({
             },
             include: {
               user: true,
-              Tweet: true,
               _count: {
                 select: {
                   likes: true,

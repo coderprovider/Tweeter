@@ -22,3 +22,14 @@ export function formatError(err: any) {
   };
   return formattedError;
 }
+
+export function objectId() {
+  return (
+    hex(Date.now() / 1000) +
+    " ".repeat(16).replace(/./g, () => hex(Math.random() * 16))
+  );
+}
+
+function hex(value: number) {
+  return Math.floor(value).toString(16);
+}
