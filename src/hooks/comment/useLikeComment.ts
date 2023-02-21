@@ -5,28 +5,35 @@ import { api, RouterOutputs } from "../../utils/api";
 interface Props {
   queryClient: QueryClient;
   userID: string;
+  tweetID: string;
 }
 
-export default function useLikeTweet({ queryClient, userID }: Props) {
-  const { mutate } = api.tweet.likeTweet.useMutation({
+export default function useLikeComment({
+  queryClient,
+  userID,
+  tweetID,
+}: Props) {
+  const { mutate } = api.comment.likeComment.useMutation({
     // * When mutate is called:
-    onMutate: async ({ likeID, twitterID, newLikeID }) => {
+    onMutate: async ({ likeID, commentID, newLikeID }) => {
       // * Cancel any outgoing refetches
       // * (so they don't overwrite the optimistic update)
       await queryClient.cancelQueries({
         queryKey: [
-          ["tweet", "getTweets"],
+          ["comment", "getComments"],
           {
+            input: tweetID,
             type: "query",
           },
         ],
       });
 
       // * Snapshot the previous value
-      const previousTweets = <RouterOutputs["tweet"]["getTweets"]>(
+      const previousComments = <RouterOutputs["comment"]["getComments"]>(
         queryClient.getQueryData([
-          ["tweet", "getTweets"],
+          ["comment", "getComments"],
           {
+            input: tweetID,
             type: "query",
           },
         ])
@@ -35,31 +42,32 @@ export default function useLikeTweet({ queryClient, userID }: Props) {
       // * Optimistically update to the new value
       queryClient.setQueryData(
         [
-          ["tweet", "getTweets"],
+          ["comment", "getComments"],
           {
+            input: tweetID,
             type: "query",
           },
         ],
-        (old: RouterOutputs["tweet"]["getTweets"] | undefined) => {
+        (old: RouterOutputs["comment"]["getComments"] | undefined) => {
           if (old === undefined) {
             return old;
           }
           return [
             ...old.map((d) =>
-              d.id === twitterID
+              d.id === commentID
                 ? likeID
                   ? {
                       ...d,
                       likes: [],
-                      _count: { ...d._count, likes: d._count.likes - 1 },
+                      _count: { likes: d._count.likes - 1 },
                     }
                   : {
                       ...d,
-                      _count: { ...d._count, likes: d._count.likes + 1 },
+                      _count: { likes: d._count.likes + 1 },
                       likes: [
                         {
                           id: newLikeID,
-                          tweetId: twitterID,
+                          commentId: commentID,
                           userId: userID,
                         },
                       ],
@@ -71,29 +79,31 @@ export default function useLikeTweet({ queryClient, userID }: Props) {
       );
 
       // * Return a context object with the snapshotted value
-      return { previousTweets };
+      return { previousComments };
     },
     // * If the mutation fails,
     // * use the context returned from onMutate to roll back
-    onError: (err, newTweet, context) => {
+    onError: (err, newComment, context) => {
       console.log(err);
       toast.error("Server error! Please try again later😓");
       queryClient.setQueryData(
         [
-          ["tweet", "getTweets"],
+          ["comment", "getComments"],
           {
+            input: tweetID,
             type: "query",
           },
         ],
-        context?.previousTweets
+        context?.previousComments
       );
     },
     // * Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [
-          ["tweet", "getTweets"],
+          ["comment", "getComments"],
           {
+            input: tweetID,
             type: "query",
           },
         ],

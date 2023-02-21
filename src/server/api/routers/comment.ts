@@ -7,7 +7,7 @@ import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 export const commentRouter = createTRPCRouter({
   getComments: protectedProcedure
     .input(z.string())
-    .query(async ({ ctx: { prisma }, input: tweetID }) => {
+    .query(async ({ ctx: { prisma, session }, input: tweetID }) => {
       try {
         const comments = await prisma.comment.findMany({
           where: {
@@ -23,6 +23,13 @@ export const commentRouter = createTRPCRouter({
             _count: {
               select: {
                 likes: true,
+              },
+            },
+            likes: {
+              where: {
+                user: {
+                  id: session.user.id,
+                },
               },
             },
           },
@@ -75,6 +82,13 @@ export const commentRouter = createTRPCRouter({
                   likes: true,
                 },
               },
+              likes: {
+                where: {
+                  user: {
+                    id: session.user.id,
+                  },
+                },
+              },
             },
           });
 
@@ -86,9 +100,10 @@ export const commentRouter = createTRPCRouter({
       }
     ),
   deleteComment: protectedProcedure
-    .input(z.string())
-    .mutation(async ({ ctx: { prisma }, input: commentID }) => {
+    .input(z.object({ commentID: z.string(), imageID: z.string().optional() }))
+    .mutation(async ({ ctx: { prisma }, input: { commentID, imageID } }) => {
       try {
+        imageID && (await cloudinary.uploader.destroy(imageID));
         const comment = await prisma.comment.delete({
           where: {
             id: commentID,
@@ -103,18 +118,18 @@ export const commentRouter = createTRPCRouter({
   likeComment: protectedProcedure
     .input(
       z.object({
-        liked: z.boolean(),
         likeID: z.string().optional(),
         commentID: z.string(),
+        newLikeID: z.string(),
       })
     )
     .mutation(
       async ({
         ctx: { prisma, session },
-        input: { liked, likeID, commentID },
+        input: { likeID, commentID, newLikeID },
       }) => {
         try {
-          if (liked && likeID) {
+          if (likeID) {
             const deletedLike = await prisma.commentLike.delete({
               where: {
                 id: likeID,
@@ -126,6 +141,7 @@ export const commentRouter = createTRPCRouter({
 
           const likeComment = await prisma.commentLike.create({
             data: {
+              id: newLikeID,
               user: {
                 connect: {
                   id: session.user.id,

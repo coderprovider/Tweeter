@@ -147,10 +147,14 @@ export const tweetRouter = createTRPCRouter({
       z.object({
         likeID: z.string().optional(),
         twitterID: z.string(),
+        newLikeID: z.string(),
       })
     )
     .mutation(
-      async ({ ctx: { prisma, session }, input: { likeID, twitterID } }) => {
+      async ({
+        ctx: { prisma, session },
+        input: { likeID, twitterID, newLikeID },
+      }) => {
         try {
           if (likeID) {
             const deletedLike = await prisma.tweetLike.delete({
@@ -164,6 +168,7 @@ export const tweetRouter = createTRPCRouter({
 
           const likedTweet = await prisma.tweetLike.create({
             data: {
+              id: newLikeID,
               user: {
                 connect: {
                   id: session.user.id,
@@ -190,12 +195,13 @@ export const tweetRouter = createTRPCRouter({
       z.object({
         bookmarkID: z.string().optional(),
         twitterID: z.string(),
+        newBookmarkID: z.string(),
       })
     )
     .mutation(
       async ({
         ctx: { session, prisma },
-        input: { bookmarkID, twitterID },
+        input: { bookmarkID, twitterID, newBookmarkID },
       }) => {
         try {
           if (bookmarkID) {
@@ -210,6 +216,7 @@ export const tweetRouter = createTRPCRouter({
 
           const bookmarkedTweet = await prisma.bookmark.create({
             data: {
+              id: newBookmarkID,
               user: {
                 connect: {
                   id: session.user.id,
@@ -235,10 +242,14 @@ export const tweetRouter = createTRPCRouter({
       z.object({
         retweetID: z.string().optional(),
         twitterID: z.string(),
+        newRetweetID: z.string(),
       })
     )
     .mutation(
-      async ({ ctx: { session, prisma }, input: { retweetID, twitterID } }) => {
+      async ({
+        ctx: { session, prisma },
+        input: { retweetID, twitterID, newRetweetID },
+      }) => {
         try {
           if (retweetID) {
             const deletedRetweet = await prisma.retweet.delete({
@@ -252,6 +263,7 @@ export const tweetRouter = createTRPCRouter({
 
           const retweetedTweet = await prisma.retweet.create({
             data: {
+              id: newRetweetID,
               user: {
                 connect: {
                   id: session.user.id,

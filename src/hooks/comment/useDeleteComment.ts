@@ -1,30 +1,16 @@
 import { QueryClient } from "@tanstack/react-query";
-import { Dispatch, SetStateAction } from "react";
 import { toast } from "react-hot-toast";
 import { api, RouterOutputs } from "../../utils/api";
 
 interface Props {
   queryClient: QueryClient;
   tweetID: string;
-  setText: Dispatch<SetStateAction<string>>;
-  setPhoto: Dispatch<
-    SetStateAction<{
-      name: string;
-      url: string;
-    }>
-  >;
 }
 
-export default function useCreateComment({
-  queryClient,
-  setText,
-  setPhoto,
-  tweetID,
-}: Props) {
-  const { mutate, isLoading } = api.comment.createComment.useMutation({
+export default function useDeleteComment({ queryClient, tweetID }: Props) {
+  const { mutate, isLoading } = api.comment.deleteComment.useMutation({
     onSuccess: (data) => {
-      setText("");
-      setPhoto({ name: "", url: "" });
+      toast.success("Deleted successfully😊");
       queryClient.setQueryData(
         [
           ["comment", "getComments"],
@@ -33,14 +19,13 @@ export default function useCreateComment({
             type: "query",
           },
         ],
-        (old: RouterOutputs["comment"]["getComments"] | undefined) => {
-          if (old === undefined) {
-            return [data];
+        (oldData: RouterOutputs["tweet"]["getTweets"] | undefined) => {
+          if (oldData === undefined) {
+            return oldData;
           }
-          return [data, ...old];
+          return [...oldData.filter((d) => d.id !== data.id)];
         }
       );
-
       queryClient.setQueryData(
         [
           ["tweet", "getTweets"],
@@ -55,7 +40,7 @@ export default function useCreateComment({
               d.id === tweetID
                 ? {
                     ...d,
-                    _count: { ...d._count, comments: d._count.comments + 1 },
+                    _count: { ...d._count, comments: d._count.comments - 1 },
                   }
                 : { ...d }
             ),
@@ -65,7 +50,7 @@ export default function useCreateComment({
     },
     onError: (err) => {
       console.log(err);
-      toast.error("Server error. Please try again later😓");
+      toast.error("Server Error. Please try again later😓");
     },
   });
 

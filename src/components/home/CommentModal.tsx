@@ -65,7 +65,13 @@ const CommentModal = ({
         ) : (
           <>
             {allComments.map((c) => (
-              <TweetComment key={c.id} comment={c} />
+              <TweetComment
+                key={c.id}
+                comment={c}
+                userSession={userSession}
+                queryClient={queryClient}
+                tweetID={tweetID}
+              />
             ))}
           </>
         )}

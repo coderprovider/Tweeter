@@ -11,7 +11,7 @@ interface Props {
 export default function useBookmarkTweet({ queryClient, userID }: Props) {
   const { mutate } = api.tweet.bookmarkTweet.useMutation({
     // * When mutate is called:
-    onMutate: async ({ bookmarkID, twitterID }) => {
+    onMutate: async ({ bookmarkID, twitterID, newBookmarkID }) => {
       // * Cancel any outgoing refetches
       // * (so they don't overwrite the optimistic update)
       await queryClient.cancelQueries({
@@ -59,7 +59,7 @@ export default function useBookmarkTweet({ queryClient, userID }: Props) {
                       _count: { ...d._count, Bookmark: d._count.Bookmark + 1 },
                       Bookmark: [
                         {
-                          id: objectId(),
+                          id: newBookmarkID,
                           tweetId: twitterID,
                           userId: userID,
                         },

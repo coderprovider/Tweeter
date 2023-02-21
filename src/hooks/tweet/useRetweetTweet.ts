@@ -1,7 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { api, RouterOutputs } from "../../utils/api";
-import { objectId } from "../../utils/utilityFunctions";
 
 interface Props {
   queryClient: QueryClient;
@@ -11,7 +10,8 @@ interface Props {
 export default function useRetweetTweet({ queryClient, userID }: Props) {
   const { mutate } = api.tweet.retweetTweet.useMutation({
     // * When mutate is called:
-    onMutate: async ({ retweetID, twitterID }) => {
+    onMutate: async ({ retweetID, twitterID, newRetweetID }) => {
+      console.log(newRetweetID);
       // * Cancel any outgoing refetches
       // * (so they don't overwrite the optimistic update)
       await queryClient.cancelQueries({
@@ -59,7 +59,7 @@ export default function useRetweetTweet({ queryClient, userID }: Props) {
                       _count: { ...d._count, retweets: d._count.retweets + 1 },
                       retweets: [
                         {
-                          id: objectId(),
+                          id: newRetweetID,
                           tweetId: twitterID,
                           userId: userID,
                         },

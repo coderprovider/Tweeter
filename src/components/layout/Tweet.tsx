@@ -16,7 +16,7 @@ import useDeleteTweet from "../../hooks/tweet/useDeleteTweet";
 import useLikeTweet from "../../hooks/tweet/useLikeTweet";
 import useRetweetTweet from "../../hooks/tweet/useRetweetTweet";
 import { RouterOutputs } from "../../utils/api";
-import { formatDate } from "../../utils/utilityFunctions";
+import { formatDate, objectId } from "../../utils/utilityFunctions";
 
 const CommentModal = dynamic(() => import("../home/CommentModal"), {
   ssr: false,
@@ -61,17 +61,29 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
 
   // ! like tweet function
   function tweetLike() {
-    likeTweet({ likeID: tweet.likes[0]?.id, twitterID: tweet.id });
+    likeTweet({
+      likeID: tweet.likes[0]?.id,
+      twitterID: tweet.id,
+      newLikeID: tweet.likes[0]?.id ? "" : objectId(),
+    });
   }
 
   // ! bookmark tweet function
   function tweetBookmark() {
-    bookmarkTweet({ bookmarkID: tweet.Bookmark[0]?.id, twitterID: tweet.id });
+    bookmarkTweet({
+      bookmarkID: tweet.Bookmark[0]?.id,
+      twitterID: tweet.id,
+      newBookmarkID: tweet.Bookmark[0]?.id ? "" : objectId(),
+    });
   }
 
   // ! retweet tweet function
   function tweetRetweet() {
-    retweetTweet({ retweetID: tweet.retweets[0]?.id, twitterID: tweet.id });
+    retweetTweet({
+      retweetID: tweet.retweets[0]?.id,
+      twitterID: tweet.id,
+      newRetweetID: tweet.retweets[0]?.id ? "" : objectId(),
+    });
   }
 
   return (

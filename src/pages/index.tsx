@@ -19,6 +19,7 @@ const Home = ({
     undefined, // no input
     { enabled: userSession?.user !== undefined }
   );
+
   const queryClient = useQueryClient();
 
   return (
