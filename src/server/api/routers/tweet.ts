@@ -77,13 +77,11 @@ export const tweetRouter = createTRPCRouter({
             id: session.user.id,
           },
           select: {
-            Following: true,
+            followingIDs: true,
           },
         });
 
-        const following = followingUser
-          ? followingUser.Following.map((f) => f.userId)
-          : [];
+        const following = followingUser ? followingUser.followingIDs : [];
 
         const reusedWhere = {
           user: {

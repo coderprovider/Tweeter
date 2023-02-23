@@ -20,6 +20,13 @@ const Home = ({
     { enabled: userSession?.user !== undefined }
   );
 
+  const { data } = api.follow.suggestToFollow.useQuery(
+    undefined, // no input
+    { enabled: userSession?.user !== undefined }
+  );
+
+  console.log(data);
+
   const queryClient = useQueryClient();
 
   return (
