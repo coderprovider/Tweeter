@@ -69,6 +69,25 @@ export const tweetRouter = createTRPCRouter({
       }
     }),
 
+  test: protectedProcedure.query(async ({ ctx: { prisma, session } }) => {
+    const followingUser = await prisma.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+      select: {
+        followingIDs: true,
+      },
+    });
+
+    const following = followingUser ? followingUser.followingIDs : [];
+
+    const retweets = await prisma.retweet.aggregateRaw({
+      pipeline: [{ $match: { userId: { $in: following } } }],
+    });
+
+    return retweets;
+  }),
+
   getTweets: protectedProcedure.query(async ({ ctx: { prisma, session } }) => {
     try {
       return await prisma.$transaction(async (tx) => {

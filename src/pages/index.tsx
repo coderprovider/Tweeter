@@ -20,11 +20,17 @@ const Home = ({
     { enabled: userSession?.user !== undefined }
   );
 
-  const { data } = api.follow.suggestToFollow.useQuery(
+  const { data } = api.tweet.test.useQuery(
     undefined, // no input
     { enabled: userSession?.user !== undefined }
   );
 
+  const { data: suggestToFollow } = api.follow.suggestToFollow.useQuery(
+    undefined, // no input
+    { enabled: userSession?.user !== undefined }
+  );
+
+  // console.log(suggestToFollow);
   console.log(data);
 
   const queryClient = useQueryClient();
@@ -56,7 +62,12 @@ const Home = ({
       </section>
       <aside className="space-y-6 md:col-span-1">
         <Trends />
-        {userSession?.user && <ToFollow />}
+        {userSession?.user && (
+          <ToFollow
+            suggestToFollow={suggestToFollow}
+            queryClient={queryClient}
+          />
+        )}
       </aside>
     </main>
   );
