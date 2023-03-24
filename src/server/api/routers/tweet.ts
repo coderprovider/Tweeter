@@ -86,6 +86,68 @@ export const tweetRouter = createTRPCRouter({
     });
 
     return retweets;
+
+    /*
+    db.Tweet.aggregate([
+  {
+    $lookup: {
+      from: "Retweet",
+      localField: "id",
+      foreignField: "tweetId",
+      as: "retweets"
+    }
+  },
+  {
+    $lookup: {
+      from: "User",
+      localField: "userId",
+      foreignField: "id",
+      as: "user"
+    }
+  },
+  {
+    $lookup: {
+      from: "User",
+      localField: "retweets.userId",
+      foreignField: "id",
+      as: "retweeters"
+    }
+  },
+  {
+    $lookup: {
+      from: "User",
+      localField: "user.following",
+      foreignField: "id",
+      as: "following"
+    }
+  },
+  {
+    $match: {
+      $or: [
+        { "userId": "<your_user_id>" },
+        { "user.following": "<your_user_id>" },
+        { "retweeters.following": "<your_user_id>" }
+      ]
+    }
+  },
+  {
+    $group: {
+      _id: "$id",
+      user: { $first: "$user" },
+      userId: { $first: "$userId" },
+      image: { $first: "$image" },
+      imageID: { $first: "$imageID" },
+      text: { $first: "$text" },
+      authorized: { $first: "$authorized" },
+      comments: { $first: "$comments" },
+      retweets: { $addToSet: { $mergeObjects: [ "$$ROOT", { retweeters: "$retweeters" } ] } },
+      likes: { $first: "$likes" },
+      Bookmark: { $first: "$Bookmark" },
+      createdAt: { $first: "$createdAt" }
+    }
+  }
+])
+    */
   }),
 
   getTweets: protectedProcedure.query(async ({ ctx: { prisma, session } }) => {

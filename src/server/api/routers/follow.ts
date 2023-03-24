@@ -34,7 +34,20 @@ export const followRouter = createTRPCRouter({
                         input: "$extended_network",
                         as: "n",
                         cond: {
-                          $gte: ["$$n.depth", 1],
+                          // $gte: ["$$n.depth", 1],
+                          $and: [
+                            {
+                              $not: {
+                                $in: ["$$n._id", "$followingIDs"],
+                              },
+                            },
+                            {
+                              $ne: [
+                                "$$n._id",
+                                { $toObjectId: session.user.id },
+                              ],
+                            },
+                          ],
                         },
                       },
                     },

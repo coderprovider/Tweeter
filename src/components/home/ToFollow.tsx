@@ -1,9 +1,8 @@
 import { QueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
-import { Button, Card, Sidebar, Spinner } from "flowbite-react";
-import Image from "next/image";
-import { api, RouterOutputs } from "../../utils/api";
+import { Button, Card, Spinner } from "flowbite-react";
 import { useState } from "react";
+import { api, RouterOutputs } from "../../utils/api";
 
 interface Props {
   suggestToFollow: RouterOutputs["follow"]["suggestToFollow"] | undefined;
@@ -11,8 +10,10 @@ interface Props {
 }
 
 export default function ToFollow({ suggestToFollow, queryClient }: Props) {
+  // ! states
   const [showLoadingFor, setShowLoadingFor] = useState<string>("");
 
+  // ! follow user mutation
   const { mutate, isLoading } = api.follow.followUser.useMutation({
     onSuccess: (data) => {
       setShowLoadingFor("");
@@ -39,6 +40,7 @@ export default function ToFollow({ suggestToFollow, queryClient }: Props) {
     },
   });
 
+  // ! follow user mutation function
   function followUser(followUserID: string) {
     mutate({ followUserID });
     setShowLoadingFor(followUserID);
@@ -49,13 +51,8 @@ export default function ToFollow({ suggestToFollow, queryClient }: Props) {
       <Card>
         <div className="flex items-center justify-between border-0 border-b-2 border-solid border-gray-200 pb-1.5">
           <h4 className="text-sm font-semibold text-black">Who to follow</h4>
-          {/* <a
-            href="#"
-            className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500"
-          >
-            View all
-          </a> */}
         </div>
+        
         <div className="flow-root">
           <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {suggestToFollow ? (
