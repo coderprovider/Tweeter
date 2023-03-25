@@ -16,6 +16,21 @@ const reusedInclude = {
   },
 };
 
+function didUser(input: string, userID: string) {
+  return {
+    $in: [
+      { $toObjectId: userID },
+      {
+        $map: {
+          input,
+          as: "l",
+          in: "$$l.userId",
+        },
+      },
+    ],
+  };
+}
+
 export const tweetRouter = createTRPCRouter({
   createTweet: protectedProcedure
     .input(
@@ -81,73 +96,167 @@ export const tweetRouter = createTRPCRouter({
 
     const following = followingUser ? followingUser.followingIDs : [];
 
-    const retweets = await prisma.retweet.aggregateRaw({
-      pipeline: [{ $match: { userId: { $in: following } } }],
+    const retweets = await prisma.tweet.aggregateRaw({
+      // local: tweet, foreign: lookup[from]. In lookup localField is the field in local and foreign field is the field in lookup[from] that is connected with the local field
+      pipeline: [
+        {
+          $lookup: {
+            from: "Retweet",
+            localField: "_id",
+            foreignField: "tweetId",
+            as: "tweetRetweets",
+          },
+        },
+        {
+          $lookup: {
+            from: "TweetLike",
+            localField: "_id",
+            foreignField: "tweetId",
+            as: "tweetLikes",
+          },
+        },
+        {
+          $lookup: {
+            from: "Comment",
+            localField: "_id",
+            foreignField: "tweetId",
+            as: "comments",
+          },
+        },
+        {
+          $lookup: {
+            from: "Bookmark",
+            localField: "_id",
+            foreignField: "tweetId",
+            as: "tweetBookmarks",
+          },
+        },
+        {
+          $lookup: {
+            from: "User",
+            localField: "userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $set: {
+            user: { $first: "$user" },
+          },
+        },
+        {
+          $lookup: {
+            from: "User",
+            let: {
+              allRetweets: "$tweetRetweets",
+              tweetUser: "$user",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: [
+                      { $toString: "$_id" },
+                      {
+                        $map: {
+                          input: "$$allRetweets",
+                          as: "n",
+                          in: {
+                            $cond: {
+                              if: {
+                                $or: [
+                                  {
+                                    $eq: [
+                                      { $toString: "$$n.userId" },
+                                      session.user.id,
+                                    ],
+                                  },
+                                  {
+                                    $in: [
+                                      { $toString: "$$n.userId" },
+                                      following,
+                                    ],
+                                  },
+                                ],
+                              },
+                              then: { $toString: "$$n.userId" },
+                              else: "",
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "allRetweeters",
+          },
+        },
+        {
+          $match: {
+            $or: [
+              { $expr: { $eq: ["$userId", { $toObjectId: session.user.id }] } },
+              {
+                $expr: {
+                  $in: [
+                    { $toObjectId: session.user.id },
+                    "$user.followedByIDs",
+                  ],
+                },
+              },
+              {
+                $expr: {
+                  $gt: [{ $size: "$allRetweeters" }, 0],
+                },
+              },
+            ],
+          },
+        },
+        {
+          $set: {
+            id: { $toString: "$_id" },
+            user: {
+              $mergeObjects: ["$user", { id: { $toString: "$user._id" } }],
+            },
+            userId: { $toString: "$userId" },
+            createdAt: { $toString: "$createdAt" },
+            _count: {
+              retweets: { $size: "$tweetRetweets" },
+              likes: { $size: "$tweetLikes" },
+              comments: { $size: "$comments" },
+              Bookmark: { $size: "$tweetBookmarks" },
+            },
+            likes: didUser("$tweetLikes", session.user.id),
+            Bookmark: didUser("$tweetBookmarks", session.user.id),
+            retweets: didUser("$tweetRetweets", session.user.id),
+            retweetersInfo: {
+              $map: {
+                input: "$allRetweeters",
+                as: "r",
+                in: {
+                  id: { $toString: "$$r._id" },
+                  name: "$$r.name",
+                },
+              },
+            },
+          },
+        },
+        {
+          $unset: [
+            "user._id",
+            "allRetweeters",
+            "comments",
+            "tweetLikes",
+            "tweetBookmarks",
+            "tweetRetweets",
+            "_id",
+          ],
+        },
+      ],
     });
 
     return retweets;
-
-    /*
-    db.Tweet.aggregate([
-  {
-    $lookup: {
-      from: "Retweet",
-      localField: "id",
-      foreignField: "tweetId",
-      as: "retweets"
-    }
-  },
-  {
-    $lookup: {
-      from: "User",
-      localField: "userId",
-      foreignField: "id",
-      as: "user"
-    }
-  },
-  {
-    $lookup: {
-      from: "User",
-      localField: "retweets.userId",
-      foreignField: "id",
-      as: "retweeters"
-    }
-  },
-  {
-    $lookup: {
-      from: "User",
-      localField: "user.following",
-      foreignField: "id",
-      as: "following"
-    }
-  },
-  {
-    $match: {
-      $or: [
-        { "userId": "<your_user_id>" },
-        { "user.following": "<your_user_id>" },
-        { "retweeters.following": "<your_user_id>" }
-      ]
-    }
-  },
-  {
-    $group: {
-      _id: "$id",
-      user: { $first: "$user" },
-      userId: { $first: "$userId" },
-      image: { $first: "$image" },
-      imageID: { $first: "$imageID" },
-      text: { $first: "$text" },
-      authorized: { $first: "$authorized" },
-      comments: { $first: "$comments" },
-      retweets: { $addToSet: { $mergeObjects: [ "$$ROOT", { retweeters: "$retweeters" } ] } },
-      likes: { $first: "$likes" },
-      Bookmark: { $first: "$Bookmark" },
-      createdAt: { $first: "$createdAt" }
-    }
-  }
-])
-    */
   }),
 
   getTweets: protectedProcedure.query(async ({ ctx: { prisma, session } }) => {

@@ -33,3 +33,22 @@ export function objectId() {
 function hex(value: number) {
   return Math.floor(value).toString(16);
 }
+
+// ! strict rule
+// $and: [
+//   {
+//     $in: [
+//       { $toString: "$$n.userId" },
+//       following,
+//     ],
+//   },
+//   { $ne: ["$$n.userId", "$$tweetUser._id"] },
+// ],
+// {
+//   $lookup: {
+//     from: "User",
+//     localField: "retweets.userId",
+//     foreignField: "_id",
+//     as: "retweeters",
+//   },
+// },
