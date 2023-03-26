@@ -3,6 +3,7 @@ import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import cloudinary from "../../../utils/cloudinaryConfig";
 import { TRPCError } from "@trpc/server";
 import { formatError } from "../../../utils/utilityFunctions";
+import { tweetsSchema } from "../../../utils/zodSchema";
 
 const reusedInclude = {
   user: true,
@@ -17,17 +18,44 @@ const reusedInclude = {
 };
 
 function didUser(input: string, userID: string) {
+  // return {
+  //   $in: [
+  //     { $toObjectId: userID },
+  //     {
+  //       $map: {
+  //         input,
+  //         as: "l",
+  //         in: "$$l.userId",
+  //       },
+  //     },
+  //   ],
+  // };
   return {
-    $in: [
-      { $toObjectId: userID },
-      {
-        $map: {
-          input,
-          as: "l",
-          in: "$$l.userId",
-        },
+    $filter: {
+      input,
+      as: "l",
+      cond: {
+        $eq: [{ $toObjectId: userID }, "$$l.userId"],
       },
-    ],
+    },
+  };
+}
+
+function formatLRB(field: string) {
+  return {
+    id: { $toString: { $first: `${field}._id` } },
+    userId: { $toString: { $first: `${field}.userId` } },
+    tweetId: { $toString: { $first: `${field}.tweetId` } },
+  };
+}
+
+function convertToStringID(input: string) {
+  return {
+    $map: {
+      input,
+      as: "f",
+      in: { $toString: "$$f" },
+    },
   };
 }
 
@@ -85,178 +113,209 @@ export const tweetRouter = createTRPCRouter({
     }),
 
   test: protectedProcedure.query(async ({ ctx: { prisma, session } }) => {
-    const followingUser = await prisma.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-      select: {
-        followingIDs: true,
-      },
-    });
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const followingUser = await tx.user.findUnique({
+          where: {
+            id: session.user.id,
+          },
+          select: {
+            followingIDs: true,
+          },
+        });
 
-    const following = followingUser ? followingUser.followingIDs : [];
+        const following = followingUser ? followingUser.followingIDs : [];
 
-    const retweets = await prisma.tweet.aggregateRaw({
-      // local: tweet, foreign: lookup[from]. In lookup localField is the field in local and foreign field is the field in lookup[from] that is connected with the local field
-      pipeline: [
-        {
-          $lookup: {
-            from: "Retweet",
-            localField: "_id",
-            foreignField: "tweetId",
-            as: "tweetRetweets",
-          },
-        },
-        {
-          $lookup: {
-            from: "TweetLike",
-            localField: "_id",
-            foreignField: "tweetId",
-            as: "tweetLikes",
-          },
-        },
-        {
-          $lookup: {
-            from: "Comment",
-            localField: "_id",
-            foreignField: "tweetId",
-            as: "comments",
-          },
-        },
-        {
-          $lookup: {
-            from: "Bookmark",
-            localField: "_id",
-            foreignField: "tweetId",
-            as: "tweetBookmarks",
-          },
-        },
-        {
-          $lookup: {
-            from: "User",
-            localField: "userId",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        {
-          $set: {
-            user: { $first: "$user" },
-          },
-        },
-        {
-          $lookup: {
-            from: "User",
-            let: {
-              allRetweets: "$tweetRetweets",
-              tweetUser: "$user",
+        const retweets = await tx.tweet.aggregateRaw({
+          // local: tweet, foreign: lookup[from]. In lookup localField is the field in local and foreign field is the field in lookup[from] that is connected with the local field
+          pipeline: [
+            {
+              $lookup: {
+                from: "Retweet",
+                localField: "_id",
+                foreignField: "tweetId",
+                as: "tweetRetweets",
+              },
             },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $in: [
-                      { $toString: "$_id" },
-                      {
-                        $map: {
-                          input: "$$allRetweets",
-                          as: "n",
-                          in: {
-                            $cond: {
-                              if: {
-                                $or: [
-                                  {
-                                    $eq: [
-                                      { $toString: "$$n.userId" },
-                                      session.user.id,
+            {
+              $lookup: {
+                from: "TweetLike",
+                localField: "_id",
+                foreignField: "tweetId",
+                as: "tweetLikes",
+              },
+            },
+            {
+              $lookup: {
+                from: "Comment",
+                localField: "_id",
+                foreignField: "tweetId",
+                as: "comments",
+              },
+            },
+            {
+              $lookup: {
+                from: "Bookmark",
+                localField: "_id",
+                foreignField: "tweetId",
+                as: "tweetBookmarks",
+              },
+            },
+            {
+              $lookup: {
+                from: "User",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $set: {
+                user: { $first: "$user" },
+              },
+            },
+            {
+              $lookup: {
+                from: "User",
+                let: {
+                  allRetweets: "$tweetRetweets",
+                  tweetUser: "$user",
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: [
+                          { $toString: "$_id" },
+                          {
+                            $map: {
+                              input: "$$allRetweets",
+                              as: "n",
+                              in: {
+                                $cond: {
+                                  if: {
+                                    $or: [
+                                      {
+                                        $eq: [
+                                          { $toString: "$$n.userId" },
+                                          session.user.id,
+                                        ],
+                                      },
+                                      {
+                                        $in: [
+                                          { $toString: "$$n.userId" },
+                                          following,
+                                        ],
+                                      },
                                     ],
                                   },
-                                  {
-                                    $in: [
-                                      { $toString: "$$n.userId" },
-                                      following,
-                                    ],
-                                  },
-                                ],
+                                  then: { $toString: "$$n.userId" },
+                                  else: "",
+                                },
                               },
-                              then: { $toString: "$$n.userId" },
-                              else: "",
                             },
                           },
-                        },
+                        ],
                       },
-                    ],
+                    },
+                  },
+                ],
+                as: "allRetweeters",
+              },
+            },
+            {
+              $match: {
+                $or: [
+                  {
+                    $expr: {
+                      $eq: ["$userId", { $toObjectId: session.user.id }],
+                    },
+                  },
+                  {
+                    $expr: {
+                      $in: [
+                        { $toObjectId: session.user.id },
+                        "$user.followedByIDs",
+                      ],
+                    },
+                  },
+                  {
+                    $expr: {
+                      $gt: [{ $size: "$allRetweeters" }, 0],
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $set: {
+                id: { $toString: "$_id" },
+                user: {
+                  $mergeObjects: [
+                    "$user",
+                    {
+                      id: { $toString: "$user._id" },
+                      followedByIDs: convertToStringID("$user.followedByIDs"),
+                      followingIDs: convertToStringID("$user.followingIDs"),
+                    },
+                  ],
+                },
+                userId: { $toString: "$userId" },
+                createdAt: { $toString: "$createdAt" },
+                _count: {
+                  retweets: { $size: "$tweetRetweets" },
+                  likes: { $size: "$tweetLikes" },
+                  comments: { $size: "$comments" },
+                  Bookmark: { $size: "$tweetBookmarks" },
+                },
+                likes: didUser("$tweetLikes", session.user.id),
+                Bookmark: didUser("$tweetBookmarks", session.user.id),
+                retweets: didUser("$tweetRetweets", session.user.id),
+                retweetersInfo: {
+                  $map: {
+                    input: "$allRetweeters",
+                    as: "r",
+                    in: {
+                      id: { $toString: "$$r._id" },
+                      name: "$$r.name",
+                    },
                   },
                 },
               },
-            ],
-            as: "allRetweeters",
-          },
-        },
-        {
-          $match: {
-            $or: [
-              { $expr: { $eq: ["$userId", { $toObjectId: session.user.id }] } },
-              {
-                $expr: {
-                  $in: [
-                    { $toObjectId: session.user.id },
-                    "$user.followedByIDs",
-                  ],
-                },
-              },
-              {
-                $expr: {
-                  $gt: [{ $size: "$allRetweeters" }, 0],
-                },
-              },
-            ],
-          },
-        },
-        {
-          $set: {
-            id: { $toString: "$_id" },
-            user: {
-              $mergeObjects: ["$user", { id: { $toString: "$user._id" } }],
             },
-            userId: { $toString: "$userId" },
-            createdAt: { $toString: "$createdAt" },
-            _count: {
-              retweets: { $size: "$tweetRetweets" },
-              likes: { $size: "$tweetLikes" },
-              comments: { $size: "$comments" },
-              Bookmark: { $size: "$tweetBookmarks" },
-            },
-            likes: didUser("$tweetLikes", session.user.id),
-            Bookmark: didUser("$tweetBookmarks", session.user.id),
-            retweets: didUser("$tweetRetweets", session.user.id),
-            retweetersInfo: {
-              $map: {
-                input: "$allRetweeters",
-                as: "r",
-                in: {
-                  id: { $toString: "$$r._id" },
-                  name: "$$r.name",
-                },
+            {
+              $set: {
+                likes: formatLRB("$likes"),
+                Bookmark: formatLRB("$Bookmark"),
+                retweets: formatLRB("$retweets"),
               },
             },
-          },
-        },
-        {
-          $unset: [
-            "user._id",
-            "allRetweeters",
-            "comments",
-            "tweetLikes",
-            "tweetBookmarks",
-            "tweetRetweets",
-            "_id",
+            {
+              $unset: [
+                "user._id",
+                "likes._id",
+                "Bookmark._id",
+                "retweets._id",
+                "allRetweeters",
+                "comments",
+                "tweetLikes",
+                "tweetBookmarks",
+                "tweetRetweets",
+                "_id",
+              ],
+            },
           ],
-        },
-      ],
-    });
+        });
 
-    return retweets;
+        tweetsSchema.parse(retweets);
+
+        return retweets as unknown as z.infer<typeof tweetsSchema>;
+        // return retweets;
+      });
+    } catch (err) {
+      console.log(err);
+      throw new TRPCError(formatError(err));
+    }
   }),
 
   getTweets: protectedProcedure.query(async ({ ctx: { prisma, session } }) => {
@@ -281,11 +340,20 @@ export const tweetRouter = createTRPCRouter({
 
         const tweets = await tx.tweet.findMany({
           where: {
-            user: {
-              id: {
-                in: [session.user.id, ...following],
+            OR: [
+              {
+                user: {
+                  id: {
+                    in: [session.user.id, ...following],
+                  },
+                },
               },
-            },
+              {
+                retweets: {
+                  some: { userId: { in: [session.user.id, ...following] } },
+                },
+              },
+            ],
           },
           orderBy: {
             createdAt: "desc",
@@ -293,7 +361,10 @@ export const tweetRouter = createTRPCRouter({
           include: {
             ...reusedInclude,
             retweets: {
-              where: reusedWhere,
+              where: { userId: { in: [session.user.id, ...following] } },
+              include: {
+                user: true,
+              },
             },
             likes: {
               where: reusedWhere,

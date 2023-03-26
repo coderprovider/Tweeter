@@ -111,7 +111,7 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
                   dateTime={tweet.createdAt as unknown as string}
                   className="text-xs font-medium text-gray-400"
                 >
-                  {formatDate(tweet.createdAt)}
+                  {formatDate(tweet.createdAt as unknown as Date)}
                 </time>
               </div>
             </div>

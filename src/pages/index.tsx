@@ -43,14 +43,16 @@ const Home = ({
             <CreateTweet queryClient={queryClient} userSession={userSession} />
             <ul className="space-y-7 py-6">
               {allTweets ? (
-                allTweets.map((t) => (
-                  <Tweet
-                    key={t.id}
-                    tweet={t}
-                    userSession={userSession}
-                    queryClient={queryClient}
-                  />
-                ))
+                allTweets.map(
+                  (t) =>
+                    // <Tweet
+                    //   key={t.id}
+                    //   tweet={t}
+                    //   userSession={userSession}
+                    //   queryClient={queryClient}
+                    // />
+                    null
+                )
               ) : (
                 <NoTweet />
               )}
