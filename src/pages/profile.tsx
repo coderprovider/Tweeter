@@ -44,8 +44,8 @@ export default function Profile() {
           </div>
 
           <ul className="space-y-7 md:col-span-3">
-            <Tweet />
-            <Tweet />
+            {/* <Tweet />
+            <Tweet /> */}
           </ul>
         </section>
       </main>

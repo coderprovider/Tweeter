@@ -1,3 +1,4 @@
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { QueryClient } from "@tanstack/react-query";
 import { Alert, Modal, Spinner } from "flowbite-react";
 import { Session } from "next-auth";
@@ -33,6 +34,8 @@ const CommentModal = ({
     }
   );
 
+  const [parent] = useAutoAnimate();
+
   return (
     <Modal
       dismissible={true}
@@ -63,7 +66,7 @@ const CommentModal = ({
             </span>
           </Alert>
         ) : (
-          <>
+          <ul ref={parent}>
             {allComments.map((c) => (
               <TweetComment
                 key={c.id}
@@ -73,7 +76,7 @@ const CommentModal = ({
                 tweetID={tweetID}
               />
             ))}
-          </>
+          </ul>
         )}
       </Modal.Body>
     </Modal>

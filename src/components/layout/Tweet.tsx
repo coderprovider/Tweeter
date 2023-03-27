@@ -52,6 +52,7 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
   const { mutate: retweetTweet } = useRetweetTweet({
     queryClient,
     userID: userSession.user.id,
+    name: userSession.user.name || null,
   });
 
   // ! delete tweet function
@@ -79,19 +80,32 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
 
   // ! retweet tweet function
   function tweetRetweet() {
+    const userRetweetID = tweet.retweets.find(
+      (r) => r.userId === userSession.user.id
+    )?.id;
+
     retweetTweet({
-      retweetID: tweet.retweets[0]?.id,
+      retweetID: userRetweetID,
       twitterID: tweet.id,
-      newRetweetID: tweet.retweets[0]?.id ? "" : objectId(),
+      newRetweetID: userRetweetID ? "" : objectId(),
     });
   }
 
   return (
     <li className="w-full">
-      <h2 className="mb-2 flex items-center gap-2.5 text-gray-400">
-        <FaRetweet className="text-lg" />
-        <span className="text-sm">Daniel Jensen Retweeted</span>
-      </h2>
+      {tweet.retweets.length ? (
+        <h2 className="mb-2 flex items-center gap-2.5 text-gray-400">
+          <FaRetweet className="text-lg" />
+          <span className="text-sm">
+            {tweet.retweets
+              .map((r) =>
+                r.userId === userSession.user.id ? "You" : r.user.name
+              )
+              .join(", ")}{" "}
+            Retweeted
+          </span>
+        </h2>
+      ) : null}
 
       <article className="max-w-full">
         <Card>
@@ -111,7 +125,7 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
                   dateTime={tweet.createdAt as unknown as string}
                   className="text-xs font-medium text-gray-400"
                 >
-                  {formatDate(tweet.createdAt as unknown as Date)}
+                  {formatDate(tweet.createdAt)}
                 </time>
               </div>
             </div>
@@ -172,7 +186,8 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
               onClick={tweetRetweet}
               color=""
               className={`flex-1 ${
-                tweet.retweets.length === 1 && "text-green-500"
+                tweet.retweets.find((r) => r.userId === userSession.user.id) &&
+                "text-green-500"
               }`}
             >
               <FaRetweet className="mr-3 text-xl" />

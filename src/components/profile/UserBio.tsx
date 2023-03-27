@@ -1,11 +1,24 @@
 import { Avatar, Button, Card } from "flowbite-react";
 import { Dispatch, SetStateAction } from "react";
+import { api } from "../../utils/api";
 
 interface UserBioProps {
   setToggleModal: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function UserBio({ setToggleModal }: UserBioProps) {
+  const {
+    data: totalFollowing,
+    isLoading,
+    error,
+  } = api.follow.totalNumberOfFollowing.useQuery(undefined, {
+    refetchOnMount: true,
+  });
+
+  if (error) {
+    console.log(error);
+  }
+
   return (
     <Card className="relative z-10 -mt-10">
       <section className="flex max-w-full gap-6">
@@ -24,7 +37,9 @@ export default function UserBio({ setToggleModal }: UserBioProps) {
                 onClick={() => setToggleModal(true)}
                 className="cursor-pointer text-sm font-semibold text-gray-500 dark:text-gray-400"
               >
-                <span className="font-bold text-gray-600">2,569 </span>
+                <span className="font-bold text-gray-600">
+                  {isLoading ? 0 : totalFollowing}{" "}
+                </span>
                 Following
               </p>
               <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">

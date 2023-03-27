@@ -74,11 +74,11 @@ export const tweetRouter = createTRPCRouter({
           ? await cloudinary.uploader.upload(input.image)
           : undefined;
 
-        const reusedWhere = {
-          user: {
-            id: session.user.id,
-          },
-        };
+        // const reusedWhere = {
+        //   user: {
+        //     id: session.user.id,
+        //   },
+        // };
 
         const newTweet = await prisma.tweet.create({
           data: {
@@ -94,15 +94,9 @@ export const tweetRouter = createTRPCRouter({
           },
           include: {
             ...reusedInclude,
-            retweets: {
-              where: reusedWhere,
-            },
-            likes: {
-              where: reusedWhere,
-            },
-            Bookmark: {
-              where: reusedWhere,
-            },
+            retweets: true,
+            likes: true,
+            Bookmark: true,
           },
         });
         return newTweet;
@@ -363,7 +357,12 @@ export const tweetRouter = createTRPCRouter({
             retweets: {
               where: { userId: { in: [session.user.id, ...following] } },
               include: {
-                user: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
             likes: {
@@ -531,6 +530,14 @@ export const tweetRouter = createTRPCRouter({
               Tweet: {
                 connect: {
                   id: twitterID,
+                },
+              },
+            },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
                 },
               },
             },

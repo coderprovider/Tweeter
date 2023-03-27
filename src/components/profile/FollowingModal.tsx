@@ -1,6 +1,9 @@
-import { Modal } from "flowbite-react";
+import { Alert, Modal, Spinner } from "flowbite-react";
 import ModalItem from "./ModalItem";
 import { Dispatch, SetStateAction } from "react";
+import { api } from "../../utils/api";
+import { toast } from "react-hot-toast";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 interface FollowingModalProps {
   toggleModal: boolean;
@@ -11,6 +14,15 @@ const FollowingModal = ({
   toggleModal,
   setToggleModal,
 }: FollowingModalProps) => {
+  const { data, isLoading } = api.follow.getFollowing.useQuery(undefined, {
+    onError: (err) => {
+      console.log(err);
+      toast.error("Server error. Please try again later😓");
+    },
+    refetchOnMount: true,
+  });
+  const [parent] = useAutoAnimate();
+
   return (
     <Modal
       dismissible={true}
@@ -21,13 +33,27 @@ const FollowingModal = ({
         Daniel Jensen is following
       </Modal.Header>
 
-      <ul className="styledScrollbar max-h-[548px] px-5">
+      <ul ref={parent} className="styledScrollbar max-h-[548px] px-5">
+        {isLoading ? (
+          <div className="mt-6 flex items-center">
+            <Spinner size="lg" aria-label="Default status example" />
+          </div>
+        ) : data === undefined || !data.length ? (
+          <Alert color="info" className="mt-6">
+            <span>
+              <span className="font-medium">No users!</span> You are not
+              following anyone yet!!!.
+            </span>
+          </Alert>
+        ) : (
+          data.map((u) => <ModalItem key={u.id} user={u} />)
+        )}
+        {/* <ModalItem />
         <ModalItem />
         <ModalItem />
         <ModalItem />
         <ModalItem />
-        <ModalItem />
-        <ModalItem />
+        <ModalItem /> */}
       </ul>
     </Modal>
   );

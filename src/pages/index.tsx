@@ -1,3 +1,4 @@
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
@@ -20,20 +21,21 @@ const Home = ({
     { enabled: userSession?.user !== undefined }
   );
 
-  const { data } = api.tweet.test.useQuery(
-    undefined, // no input
-    { enabled: userSession?.user !== undefined }
-  );
+  // const { data } = api.tweet.test.useQuery(
+  //   undefined, // no input
+  //   { enabled: userSession?.user !== undefined }
+  // );
 
   const { data: suggestToFollow } = api.follow.suggestToFollow.useQuery(
     undefined, // no input
-    { enabled: userSession?.user !== undefined }
+    { enabled: userSession?.user !== undefined, refetchOnMount: true }
   );
 
   // console.log(suggestToFollow);
-  console.log(data);
+  // console.log(data);
 
   const queryClient = useQueryClient();
+  const [parent] = useAutoAnimate();
 
   return (
     <main className="mx-auto flex w-[80rem] max-w-full flex-col-reverse gap-6 py-6 px-4 md:grid md:grid-cols-4">
@@ -41,18 +43,16 @@ const Home = ({
         {userSession?.user !== undefined ? (
           <>
             <CreateTweet queryClient={queryClient} userSession={userSession} />
-            <ul className="space-y-7 py-6">
+            <ul ref={parent} className="space-y-7 py-6">
               {allTweets ? (
-                allTweets.map(
-                  (t) =>
-                    // <Tweet
-                    //   key={t.id}
-                    //   tweet={t}
-                    //   userSession={userSession}
-                    //   queryClient={queryClient}
-                    // />
-                    null
-                )
+                allTweets.map((t) => (
+                  <Tweet
+                    key={t.id}
+                    tweet={t}
+                    userSession={userSession}
+                    queryClient={queryClient}
+                  />
+                ))
               ) : (
                 <NoTweet />
               )}

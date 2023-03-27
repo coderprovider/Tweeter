@@ -5,9 +5,10 @@ import { api, RouterOutputs } from "../../utils/api";
 interface Props {
   queryClient: QueryClient;
   userID: string;
+  name: string | null;
 }
 
-export default function useRetweetTweet({ queryClient, userID }: Props) {
+export default function useRetweetTweet({ queryClient, userID, name }: Props) {
   const { mutate } = api.tweet.retweetTweet.useMutation({
     // * When mutate is called:
     onMutate: async ({ retweetID, twitterID, newRetweetID }) => {
@@ -51,17 +52,24 @@ export default function useRetweetTweet({ queryClient, userID }: Props) {
                 ? retweetID
                   ? {
                       ...d,
-                      retweets: [],
+                      retweets: [
+                        ...d.retweets.filter((r) => r.id === retweetID),
+                      ],
                       _count: { ...d._count, retweets: d._count.retweets - 1 },
                     }
                   : {
                       ...d,
                       _count: { ...d._count, retweets: d._count.retweets + 1 },
                       retweets: [
+                        ...d.retweets,
                         {
                           id: newRetweetID,
                           tweetId: twitterID,
                           userId: userID,
+                          user: {
+                            id: userID,
+                            name,
+                          },
                         },
                       ],
                     }

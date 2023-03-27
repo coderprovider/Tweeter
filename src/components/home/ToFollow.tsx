@@ -1,3 +1,4 @@
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { QueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { Button, Card, Spinner } from "flowbite-react";
@@ -12,6 +13,7 @@ interface Props {
 export default function ToFollow({ suggestToFollow, queryClient }: Props) {
   // ! states
   const [showLoadingFor, setShowLoadingFor] = useState<string>("");
+  const [parent] = useAutoAnimate();
 
   // ! follow user mutation
   const { mutate, isLoading } = api.follow.followUser.useMutation({
@@ -52,9 +54,12 @@ export default function ToFollow({ suggestToFollow, queryClient }: Props) {
         <div className="flex items-center justify-between border-0 border-b-2 border-solid border-gray-200 pb-1.5">
           <h4 className="text-sm font-semibold text-black">Who to follow</h4>
         </div>
-        
+
         <div className="flow-root">
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+          <ul
+            ref={parent}
+            className="divide-y divide-gray-200 dark:divide-gray-700"
+          >
             {suggestToFollow ? (
               suggestToFollow.map((s) => (
                 <li key={s.id} className="py-3 sm:py-4">
