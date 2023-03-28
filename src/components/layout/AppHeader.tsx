@@ -42,7 +42,7 @@ export default function AppHeader({ setToggleModal }: Props) {
                   {sessionData.user.email}
                 </span>
               </Dropdown.Header>
-              <Link href="/profile">
+              <Link href={`/profile/${sessionData.user.id}`}>
                 <Dropdown.Item>Profile</Dropdown.Item>
               </Link>
               <Dropdown.Item>Settings</Dropdown.Item>

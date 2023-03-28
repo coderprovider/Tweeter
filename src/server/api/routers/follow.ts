@@ -165,31 +165,6 @@ export const followRouter = createTRPCRouter({
     }
   ),
 
-  totalNumberOfFollowing: protectedProcedure.query(
-    async ({ ctx: { prisma, session } }) => {
-      try {
-        const {
-          _count: { following },
-        } = await prisma.user.findUniqueOrThrow({
-          where: {
-            id: session.user.id,
-          },
-          select: {
-            _count: {
-              select: {
-                following: true,
-              },
-            },
-          },
-        });
-        return following;
-      } catch (err) {
-        console.log(err);
-        throw new TRPCError(formatError(err));
-      }
-    }
-  ),
-
   unFollowUser: protectedProcedure
     .input(z.object({ unFollowUserID: z.string() }))
     .mutation(

@@ -1,29 +1,27 @@
 import { Avatar, Button, Card } from "flowbite-react";
+import { Session } from "next-auth";
 import { Dispatch, SetStateAction } from "react";
-import { api } from "../../utils/api";
+import { api, RouterOutputs } from "../../utils/api";
 
 interface UserBioProps {
   setToggleModal: Dispatch<SetStateAction<boolean>>;
+  user: RouterOutputs["user"]["getUser"];
+  userSession: Session | undefined;
 }
 
-export default function UserBio({ setToggleModal }: UserBioProps) {
-  const {
-    data: totalFollowing,
-    isLoading,
-    error,
-  } = api.follow.totalNumberOfFollowing.useQuery(undefined, {
-    refetchOnMount: true,
-  });
-
-  if (error) {
-    console.log(error);
-  }
-
+export default function UserBio({
+  setToggleModal,
+  user,
+  userSession,
+}: UserBioProps) {
   return (
     <Card className="relative z-10 -mt-10">
       <section className="flex max-w-full gap-6">
         <Avatar
-          img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+          img={
+            user.image ||
+            "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+          }
           size="xl"
           className="-mt-16 hidden sm:block"
         />
@@ -31,23 +29,31 @@ export default function UserBio({ setToggleModal }: UserBioProps) {
           <div className="flex flex-wrap justify-between">
             <div className="flex flex-wrap items-center gap-x-5">
               <h5 className="text-xl font-bold capitalize tracking-tight text-gray-900 dark:text-white">
-                Daniel Jensen
+                {user.name}
               </h5>
               <p
                 onClick={() => setToggleModal(true)}
                 className="cursor-pointer text-sm font-semibold text-gray-500 dark:text-gray-400"
               >
                 <span className="font-bold text-gray-600">
-                  {isLoading ? 0 : totalFollowing}{" "}
+                  {user._count.following}{" "}
                 </span>
                 Following
               </p>
               <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                <span className="font-bold text-gray-600">10.8k </span>
+                <span className="font-bold text-gray-600">
+                  {user.followedByIDs.length}{" "}
+                </span>
                 Followers
               </p>
             </div>
-            <Button>Follow</Button>
+            {userSession &&
+              userSession.user.id !== user.id &&
+              (user.followedByIDs.includes(userSession.user.id) ? (
+                <Button color="failure">Un Follow</Button>
+              ) : (
+                <Button>Follow</Button>
+              ))}
           </div>
 
           <p className="mt-2 w-96 max-w-full font-medium text-gray-500">
