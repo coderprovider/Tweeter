@@ -22,14 +22,25 @@ export default function Profile({
   profileUserId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [toggleModal, setToggleModal] = useState<boolean>(false);
-  const { data } = api.user.getUser.useQuery(
+  const { data: currentUser } = api.user.getUser.useQuery(
     {
       userID: profileUserId,
     },
     { enabled: !!userSession, refetchOnMount: true }
   );
 
-  if (!data) {
+  if (!userSession) {
+    return (
+      <Alert color="failure">
+        <span>
+          <span className="font-medium">Please Login first!</span> Profile not
+          found.
+        </span>
+      </Alert>
+    );
+  }
+
+  if (!currentUser) {
     return (
       <Alert color="failure">
         <span>
@@ -52,7 +63,7 @@ export default function Profile({
       <main className="mx-auto w-[80rem] max-w-full px-4">
         <UserBio
           setToggleModal={setToggleModal}
-          user={data}
+          user={currentUser}
           userSession={userSession}
         />
 
@@ -83,6 +94,9 @@ export default function Profile({
       <FollowingModal
         toggleModal={toggleModal}
         setToggleModal={setToggleModal}
+        userID={profileUserId}
+        name={currentUser.name}
+        userSession={userSession}
       />
     </>
   );

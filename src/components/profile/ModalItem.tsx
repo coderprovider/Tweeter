@@ -1,41 +1,28 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { Button, Spinner } from "flowbite-react";
+import { Session } from "next-auth";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import useUnfollowUser from "../../hooks/user/useUnfollowUser";
 import { api, RouterOutputs } from "../../utils/api";
 
 interface Props {
   user: RouterOutputs["follow"]["getFollowing"][number];
+  userSession: Session;
+  profileUserId: string;
 }
 
-export default function ModalItem({ user }: Props) {
-  const queryClient = useQueryClient();
-
-  const { mutate, isLoading } = api.follow.unFollowUser.useMutation({
-    onError: (err) => {
-      console.log(err);
-      toast.error("Server error. Please try again later😓");
-    },
-    onSuccess: (data) => {
-      toast.success("Successfully un followed");
-      const getFollowingQueryKey = getQueryKey(
-        api.follow.getFollowing,
-        undefined,
-        "query"
-      );
-      queryClient.setQueryData(
-        getFollowingQueryKey,
-        (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
-          if (!old) return old;
-          return [...old.filter((u) => u.id !== data)];
-        }
-      );
-    },
-  });
+export default function ModalItem({ user, userSession, profileUserId }: Props) {
+  // TODO: Have to fix this mutation. userID must be changed
+  const { mutate: unFollowMutate, isLoading: unFollowLoading } =
+    useUnfollowUser({
+      profileUserId,
+      loggedInUserID: userSession.user.id,
+    });
 
   function userUnFollow() {
-    mutate({ unFollowUserID: user.id });
+    unFollowMutate({ unFollowUserID: user.id });
   }
 
   return (
@@ -59,23 +46,25 @@ export default function ModalItem({ user }: Props) {
             </p>
           </div>
         </div>
-        <Button
-          onClick={userUnFollow}
-          color="failure"
-          className={`text-center ${
-            isLoading ? "pointer-events-none" : "pointer-events-auto"
-          }`}
-        >
-          {isLoading ? (
-            <Spinner
-              color="failure"
-              aria-label="Default status example"
-              size="md"
-            />
-          ) : (
-            "Un Follow"
-          )}
-        </Button>
+        {profileUserId === userSession.user.id ? (
+          <Button
+            onClick={userUnFollow}
+            color="failure"
+            className={`text-center ${
+              unFollowLoading ? "pointer-events-none" : "pointer-events-auto"
+            }`}
+          >
+            {unFollowLoading ? (
+              <Spinner
+                color="failure"
+                aria-label="Default status example"
+                size="md"
+              />
+            ) : (
+              "Un Follow"
+            )}
+          </Button>
+        ) : null}
       </div>
       <p className="mt-3 truncate text-sm font-medium text-gray-500 dark:text-gray-400">
         Lorem ipsum dolor sit amet consectetur adipisicing elit.

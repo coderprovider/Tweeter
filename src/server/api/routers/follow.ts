@@ -146,12 +146,13 @@ export const followRouter = createTRPCRouter({
       }
     }),
 
-  getFollowing: protectedProcedure.query(
-    async ({ ctx: { prisma, session } }) => {
+  getFollowing: protectedProcedure
+    .input(z.object({ userID: z.string() }))
+    .query(async ({ ctx: { prisma, session }, input: { userID } }) => {
       try {
         const { following } = await prisma.user.findUniqueOrThrow({
           where: {
-            id: session.user.id,
+            id: userID,
           },
           select: {
             following: true,
@@ -162,8 +163,7 @@ export const followRouter = createTRPCRouter({
         console.log(err);
         throw new TRPCError(formatError(err));
       }
-    }
-  ),
+    }),
 
   unFollowUser: protectedProcedure
     .input(z.object({ unFollowUserID: z.string() }))

@@ -4,23 +4,34 @@ import { Dispatch, SetStateAction } from "react";
 import { api } from "../../utils/api";
 import { toast } from "react-hot-toast";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Session } from "next-auth";
 
 interface FollowingModalProps {
   toggleModal: boolean;
   setToggleModal: Dispatch<SetStateAction<boolean>>;
+  userID: string;
+  name: string | null;
+  userSession: Session;
 }
 
 const FollowingModal = ({
   toggleModal,
   setToggleModal,
+  userID,
+  name,
+  userSession,
 }: FollowingModalProps) => {
-  const { data, isLoading } = api.follow.getFollowing.useQuery(undefined, {
-    onError: (err) => {
-      console.log(err);
-      toast.error("Server error. Please try again later😓");
-    },
-    refetchOnMount: true,
-  });
+  const { data, isLoading } = api.follow.getFollowing.useQuery(
+    { userID },
+    {
+      onError: (err) => {
+        console.log(err);
+        toast.error("Server error. Please try again later😓");
+      },
+      refetchOnMount: true,
+    }
+  );
+
   const [parent] = useAutoAnimate();
 
   return (
@@ -30,7 +41,7 @@ const FollowingModal = ({
       onClose={() => setToggleModal(false)}
     >
       <Modal.Header className="border-0 border-b-2 border-solid border-gray-300">
-        Daniel Jensen is following
+        {name} is following
       </Modal.Header>
 
       <ul ref={parent} className="styledScrollbar max-h-[548px] px-5">
@@ -39,21 +50,23 @@ const FollowingModal = ({
             <Spinner size="lg" aria-label="Default status example" />
           </div>
         ) : data === undefined || !data.length ? (
-          <Alert color="info" className="mt-6">
+          <Alert color="info" className="my-4">
             <span>
-              <span className="font-medium">No users!</span> You are not
-              following anyone yet!!!.
+              <span className="font-medium">No users!</span>{" "}
+              {userSession.user.id === userID ? "You are " : `${name} is `}
+              not following anyone yet!!!.
             </span>
           </Alert>
         ) : (
-          data.map((u) => <ModalItem key={u.id} user={u} />)
+          data.map((u) => (
+            <ModalItem
+              key={u.id}
+              user={u}
+              userSession={userSession}
+              profileUserId={userID}
+            />
+          ))
         )}
-        {/* <ModalItem />
-        <ModalItem />
-        <ModalItem />
-        <ModalItem />
-        <ModalItem />
-        <ModalItem /> */}
       </ul>
     </Modal>
   );
