@@ -94,7 +94,16 @@ export const tweetRouter = createTRPCRouter({
           },
           include: {
             ...reusedInclude,
-            retweets: true,
+            retweets: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
             likes: true,
             Bookmark: true,
           },

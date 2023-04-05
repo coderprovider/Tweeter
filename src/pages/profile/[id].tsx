@@ -119,7 +119,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         permanent: false,
         destination: "/",
       },
-      props: { profileUserId },
+      props: { profileUserId, userSession },
     };
   }
 

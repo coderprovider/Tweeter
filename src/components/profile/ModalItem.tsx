@@ -6,6 +6,7 @@ import Image from "next/image";
 import { toast } from "react-hot-toast";
 import useUnfollowUser from "../../hooks/user/useUnfollowUser";
 import { api, RouterOutputs } from "../../utils/api";
+import Link from "next/link";
 
 interface Props {
   user: RouterOutputs["follow"]["getFollowing"][number];
@@ -29,18 +30,22 @@ export default function ModalItem({ user, userSession, profileUserId }: Props) {
     <li className="border-0 border-b-2 border-solid border-gray-200 py-3 sm:py-4">
       <div className="flex flex-wrap justify-between space-x-4">
         <div className="flex items-center sm:space-x-4">
-          <img
-            className="hidden h-9 w-9 shrink-0 rounded-lg sm:block"
-            src={
-              user.image ||
-              "https://flowbite.com/docs/images/people/profile-picture-2.jpg"
-            }
-            alt="user pic"
-          />
+          <Link href={`/profile/${user.id}`}>
+            <img
+              className="hidden h-9 w-9 shrink-0 rounded-lg sm:block"
+              src={
+                user.image ||
+                "https://flowbite.com/docs/images/people/profile-picture-2.jpg"
+              }
+              alt="user pic"
+            />
+          </Link>
           <div className="flex-1">
-            <p className="truncate text-base font-bold text-gray-900 dark:text-white">
-              {user.name}
-            </p>
+            <Link href={`/profile/${user.id}`}>
+              <p className="truncate text-base font-bold text-gray-900 dark:text-white">
+                {user.name}
+              </p>
+            </Link>
             <p className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">
               {user.followedByIDs.length} followers
             </p>

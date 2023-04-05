@@ -17,6 +17,7 @@ import useLikeTweet from "../../hooks/tweet/useLikeTweet";
 import useRetweetTweet from "../../hooks/tweet/useRetweetTweet";
 import { RouterOutputs } from "../../utils/api";
 import { formatDate, objectId } from "../../utils/utilityFunctions";
+import Link from "next/link";
 
 const CommentModal = dynamic(() => import("../home/CommentModal"), {
   ssr: false,
@@ -111,16 +112,20 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
         <Card>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Avatar
-                img={
-                  tweet.user.image ||
-                  "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                }
-              />
+              <Link href={`/profile/${tweet.user.id}`}>
+                <Avatar
+                  img={
+                    tweet.user.image ||
+                    "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                  }
+                />
+              </Link>
               <div>
-                <h3 className="text-base font-bold capitalize text-black">
-                  {tweet.user.name}
-                </h3>
+                <Link href={`/profile/${tweet.user.id}`}>
+                  <h3 className="text-base font-bold capitalize text-black">
+                    {tweet.user.name}
+                  </h3>
+                </Link>
                 <time
                   dateTime={tweet.createdAt as unknown as string}
                   className="text-xs font-medium text-gray-400"

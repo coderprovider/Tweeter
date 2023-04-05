@@ -1,12 +1,13 @@
-import { Avatar, Button, Card } from "flowbite-react";
+import { Avatar, Button, Card, Spinner } from "flowbite-react";
 import { Session } from "next-auth";
 import { Dispatch, SetStateAction } from "react";
 import { api, RouterOutputs } from "../../utils/api";
+import useProfileFollow from "../../hooks/user/useProfileFollow";
 
 interface UserBioProps {
   setToggleModal: Dispatch<SetStateAction<boolean>>;
   user: RouterOutputs["user"]["getUser"];
-  userSession: Session | undefined;
+  userSession: Session;
 }
 
 export default function UserBio({
@@ -14,6 +15,14 @@ export default function UserBio({
   user,
   userSession,
 }: UserBioProps) {
+  const { mutate: followUser, isLoading: followLoading } = useProfileFollow({
+    loggedInUserID: userSession.user.id,
+  });
+
+  function userFollow() {
+    followUser({ followUserID: user.id });
+  }
+
   return (
     <Card className="relative z-10 -mt-10">
       <section className="flex max-w-full gap-6">
@@ -52,7 +61,20 @@ export default function UserBio({
               (user.followedByIDs.includes(userSession.user.id) ? (
                 <Button color="failure">Un Follow</Button>
               ) : (
-                <Button>Follow</Button>
+                <Button
+                  className={`text-center ${
+                    followLoading
+                      ? "pointer-events-none"
+                      : "pointer-events-auto"
+                  }`}
+                  onClick={userFollow}
+                >
+                  {followLoading ? (
+                    <Spinner aria-label="Default status example" size="md" />
+                  ) : (
+                    "Follow"
+                  )}
+                </Button>
               ))}
           </div>
 

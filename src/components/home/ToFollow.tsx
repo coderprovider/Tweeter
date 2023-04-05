@@ -4,6 +4,8 @@ import { getQueryKey } from "@trpc/react-query";
 import { Button, Card, Spinner } from "flowbite-react";
 import { useState } from "react";
 import { api, RouterOutputs } from "../../utils/api";
+import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 interface Props {
   suggestToFollow: RouterOutputs["follow"]["suggestToFollow"] | undefined;
@@ -40,6 +42,10 @@ export default function ToFollow({ suggestToFollow, queryClient }: Props) {
       );
       queryClient.invalidateQueries({ queryKey: tweetsQueryKey });
     },
+    onError: (err) => {
+      console.log(err);
+      toast.error(err.message);
+    },
   });
 
   // ! follow user mutation function
@@ -64,18 +70,22 @@ export default function ToFollow({ suggestToFollow, queryClient }: Props) {
               suggestToFollow.map((s) => (
                 <li key={s.id} className="py-3 sm:py-4">
                   <div className="flex items-center lg:space-x-4">
-                    <img
-                      className="hidden h-8 w-8 shrink-0 rounded-full lg:block"
-                      src={s.image ?? undefined}
-                      alt="Michael image"
-                    />
+                    <Link href={`/profile/${s.id}`}>
+                      <img
+                        className="hidden h-8 w-8 shrink-0 rounded-full lg:block"
+                        src={s.image ?? undefined}
+                        alt="Michael image"
+                      />
+                    </Link>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                        {s.name}
-                      </p>
-                      <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                        {s.email}
-                      </p>
+                      <Link href={`/profile/${s.id}`}>
+                        <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                          {s.name}
+                        </p>
+                        <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                          {s.email}
+                        </p>
+                      </Link>
                     </div>
                     <Button
                       size="xs"

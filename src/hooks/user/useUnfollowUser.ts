@@ -13,6 +13,7 @@ export default function useUnfollowUser({
   loggedInUserID,
 }: Props) {
   const queryClient = useQueryClient();
+  const utils = api.useContext();
 
   const { mutate, isLoading } = api.follow.unFollowUser.useMutation({
     onError: (err) => {
@@ -23,16 +24,19 @@ export default function useUnfollowUser({
       toast.success("Successfully un followed");
 
       if (profileUserId === loggedInUserID) {
-        const getFollowingQueryKey = getQueryKey(
-          api.follow.getFollowing,
+        utils.follow.getFollowing.setData(
           { userID: profileUserId },
-          "query"
-        );
-        queryClient.setQueryData(
-          getFollowingQueryKey,
           (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
             if (!old) return old;
             return [...old.filter((u) => u.id !== data)];
+          }
+        );
+
+        utils.user.getUser.setData(
+          { userID: loggedInUserID },
+          (old: RouterOutputs["user"]["getUser"] | undefined) => {
+            if (old === undefined) return old;
+            return { ...old, _count: { following: old._count.following - 1 } };
           }
         );
       }
