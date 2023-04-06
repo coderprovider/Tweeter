@@ -46,7 +46,7 @@ const FollowingModal = ({
 
       <ul ref={parent} className="styledScrollbar max-h-[548px] px-5">
         {isLoading ? (
-          <div className="mt-6 flex items-center">
+          <div className="mt-6 flex justify-center">
             <Spinner size="lg" aria-label="Default status example" />
           </div>
         ) : data === undefined || !data.length ? (

@@ -1,5 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
 import { toast } from "react-hot-toast";
 import { api, RouterOutputs } from "../../utils/api";
 
@@ -12,7 +10,6 @@ export default function useUnfollowUser({
   profileUserId,
   loggedInUserID,
 }: Props) {
-  const queryClient = useQueryClient();
   const utils = api.useContext();
 
   const { mutate, isLoading } = api.follow.unFollowUser.useMutation({
@@ -37,6 +34,19 @@ export default function useUnfollowUser({
           (old: RouterOutputs["user"]["getUser"] | undefined) => {
             if (old === undefined) return old;
             return { ...old, _count: { following: old._count.following - 1 } };
+          }
+        );
+      } else {
+        utils.user.getUser.setData(
+          { userID: profileUserId },
+          (old: RouterOutputs["user"]["getUser"] | undefined) => {
+            if (old === undefined) return old;
+            return {
+              ...old,
+              followedByIDs: [
+                ...old.followedByIDs.filter((f) => f !== loggedInUserID),
+              ],
+            };
           }
         );
       }

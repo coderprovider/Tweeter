@@ -91,13 +91,15 @@ export default function Profile({
         </section>
       </main>
 
-      <FollowingModal
-        toggleModal={toggleModal}
-        setToggleModal={setToggleModal}
-        userID={profileUserId}
-        name={currentUser.name}
-        userSession={userSession}
-      />
+      {toggleModal && (
+        <FollowingModal
+          toggleModal={toggleModal}
+          setToggleModal={setToggleModal}
+          userID={profileUserId}
+          name={currentUser.name}
+          userSession={userSession}
+        />
+      )}
     </>
   );
 }

@@ -218,13 +218,15 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
             </Button>
           </Button.Group>
 
-          <CommentModal
-            toggleModal={toggleModal}
-            setToggleModal={setToggleModal}
-            tweetID={tweet.id}
-            queryClient={queryClient}
-            userSession={userSession}
-          />
+          {toggleModal && (
+            <CommentModal
+              toggleModal={toggleModal}
+              setToggleModal={setToggleModal}
+              tweetID={tweet.id}
+              queryClient={queryClient}
+              userSession={userSession}
+            />
+          )}
         </Card>
       </article>
     </li>

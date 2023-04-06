@@ -3,6 +3,7 @@ import { Session } from "next-auth";
 import { Dispatch, SetStateAction } from "react";
 import { api, RouterOutputs } from "../../utils/api";
 import useProfileFollow from "../../hooks/user/useProfileFollow";
+import useUnfollowUser from "../../hooks/user/useUnfollowUser";
 
 interface UserBioProps {
   setToggleModal: Dispatch<SetStateAction<boolean>>;
@@ -15,12 +16,23 @@ export default function UserBio({
   user,
   userSession,
 }: UserBioProps) {
+  // ? Follow user mutation
   const { mutate: followUser, isLoading: followLoading } = useProfileFollow({
     loggedInUserID: userSession.user.id,
   });
 
+  // ? Un follow user mutation
+  const { mutate: unFollowUser, isLoading: unFollowLoading } = useUnfollowUser({
+    loggedInUserID: userSession.user.id,
+    profileUserId: user.id,
+  });
+
   function userFollow() {
     followUser({ followUserID: user.id });
+  }
+
+  function userUnFollow() {
+    unFollowUser({ unFollowUserID: user.id });
   }
 
   return (
@@ -59,7 +71,25 @@ export default function UserBio({
             {userSession &&
               userSession.user.id !== user.id &&
               (user.followedByIDs.includes(userSession.user.id) ? (
-                <Button color="failure">Un Follow</Button>
+                <Button
+                  color="failure"
+                  className={`text-center ${
+                    unFollowLoading
+                      ? "pointer-events-none"
+                      : "pointer-events-auto"
+                  }`}
+                  onClick={userUnFollow}
+                >
+                  {unFollowLoading ? (
+                    <Spinner
+                      color="failure"
+                      aria-label="Default status example"
+                      size="md"
+                    />
+                  ) : (
+                    "Un Follow"
+                  )}
+                </Button>
               ) : (
                 <Button
                   className={`text-center ${
