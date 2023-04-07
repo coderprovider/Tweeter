@@ -17,11 +17,18 @@ const FollowingModal = dynamic(
   { ssr: false }
 );
 
+const FollowedModal = dynamic(
+  () => import("../../components/profile/FollowedModal"),
+  { ssr: false }
+);
+
 export default function Profile({
   userSession,
   profileUserId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [toggleModal, setToggleModal] = useState<boolean>(false);
+  const [followedToggleModal, setFollowedToggleModal] =
+    useState<boolean>(false);
   const { data: currentUser } = api.user.getUser.useQuery(
     {
       userID: profileUserId,
@@ -63,6 +70,7 @@ export default function Profile({
       <main className="mx-auto w-[80rem] max-w-full px-4">
         <UserBio
           setToggleModal={setToggleModal}
+          setFollowedToggleModal={setFollowedToggleModal}
           user={currentUser}
           userSession={userSession}
         />
@@ -91,15 +99,21 @@ export default function Profile({
         </section>
       </main>
 
-      {toggleModal && (
-        <FollowingModal
-          toggleModal={toggleModal}
-          setToggleModal={setToggleModal}
-          userID={profileUserId}
-          name={currentUser.name}
-          userSession={userSession}
-        />
-      )}
+      <FollowingModal
+        toggleModal={toggleModal}
+        setToggleModal={setToggleModal}
+        userID={profileUserId}
+        name={currentUser.name}
+        userSession={userSession}
+      />
+
+      <FollowedModal
+        toggleModal={followedToggleModal}
+        setToggleModal={setFollowedToggleModal}
+        userID={profileUserId}
+        name={currentUser.name}
+        userSession={userSession}
+      />
     </>
   );
 }

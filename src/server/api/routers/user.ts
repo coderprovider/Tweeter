@@ -6,7 +6,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 export const userRouter = createTRPCRouter({
   getUser: protectedProcedure
     .input(z.object({ userID: z.string() }))
-    .query(async ({ ctx: { prisma }, input: { userID } }) => {
+    .query(async ({ ctx: { prisma, session }, input: { userID } }) => {
       try {
         const user = await prisma.user.findUniqueOrThrow({
           where: {
@@ -16,9 +16,17 @@ export const userRouter = createTRPCRouter({
             _count: {
               select: {
                 following: true,
+                followedBy: true,
               },
             },
-            followedByIDs: true,
+            followedBy: {
+              where: {
+                id: session.user.id,
+              },
+              select: {
+                id: true,
+              },
+            },
             image: true,
             name: true,
             id: true,

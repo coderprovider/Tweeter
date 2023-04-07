@@ -2,13 +2,15 @@ import { toast } from "react-hot-toast";
 import { api, RouterOutputs } from "../../utils/api";
 
 interface Props {
-  profileUserId: string;
+  profileUserID: string;
   loggedInUserID: string;
+  from: "BIO" | "FOLLOWING";
 }
 
 export default function useUnfollowUser({
-  profileUserId,
+  profileUserID,
   loggedInUserID,
+  from,
 }: Props) {
   const utils = api.useContext();
 
@@ -20,9 +22,21 @@ export default function useUnfollowUser({
     onSuccess: (data) => {
       toast.success("Successfully un followed");
 
-      if (profileUserId === loggedInUserID) {
+      if (from === "BIO") {
+        utils.user.getUser.setData(
+          { userID: profileUserID },
+          (old: RouterOutputs["user"]["getUser"] | undefined) => {
+            if (old === undefined) return old;
+            return {
+              ...old,
+              followedBy: [],
+              _count: { ...old._count, followedBy: old._count.followedBy - 1 },
+            };
+          }
+        );
+      } else if (profileUserID === loggedInUserID && from === "FOLLOWING") {
         utils.follow.getFollowing.setData(
-          { userID: profileUserId },
+          { userID: profileUserID },
           (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
             if (!old) return old;
             return [...old.filter((u) => u.id !== data)];
@@ -30,23 +44,33 @@ export default function useUnfollowUser({
         );
 
         utils.user.getUser.setData(
-          { userID: loggedInUserID },
-          (old: RouterOutputs["user"]["getUser"] | undefined) => {
-            if (old === undefined) return old;
-            return { ...old, _count: { following: old._count.following - 1 } };
-          }
-        );
-      } else {
-        utils.user.getUser.setData(
-          { userID: profileUserId },
+          { userID: profileUserID },
           (old: RouterOutputs["user"]["getUser"] | undefined) => {
             if (old === undefined) return old;
             return {
               ...old,
-              followedByIDs: [
-                ...old.followedByIDs.filter((f) => f !== loggedInUserID),
-              ],
+              _count: { ...old._count, following: old._count.following - 1 },
             };
+          }
+        );
+      } else if (profileUserID !== loggedInUserID && from === "FOLLOWING") {
+        // * Must pass logged in userID and profile userID
+        utils.follow.getFollowing.setData(
+          { userID: profileUserID! },
+          (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
+            if (old === undefined) return old;
+            return [
+              ...old.map((u) =>
+                u.id === data
+                  ? {
+                      ...u,
+                      followedByIDs: [
+                        ...u.followedByIDs.filter((f) => f !== loggedInUserID),
+                      ],
+                    }
+                  : u
+              ),
+            ];
           }
         );
       }

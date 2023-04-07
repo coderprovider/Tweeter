@@ -64,12 +64,7 @@ const Home = ({
       </section>
       <aside className="space-y-6 md:col-span-1">
         <Trends />
-        {userSession?.user && (
-          <ToFollow
-            suggestToFollow={suggestToFollow}
-            queryClient={queryClient}
-          />
-        )}
+        {userSession?.user && <ToFollow suggestToFollow={suggestToFollow} />}
       </aside>
     </main>
   );

@@ -41,7 +41,7 @@ const FollowingModal = ({
       onClose={() => setToggleModal(false)}
     >
       <Modal.Header className="border-0 border-b-2 border-solid border-gray-300">
-        {name} is following
+        {userSession.user.id === userID ? "You are" : `${name} is`} following
       </Modal.Header>
 
       <ul ref={parent} className="styledScrollbar max-h-[548px] px-5">

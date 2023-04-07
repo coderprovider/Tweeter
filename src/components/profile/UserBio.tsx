@@ -7,24 +7,28 @@ import useUnfollowUser from "../../hooks/user/useUnfollowUser";
 
 interface UserBioProps {
   setToggleModal: Dispatch<SetStateAction<boolean>>;
+  setFollowedToggleModal: Dispatch<SetStateAction<boolean>>;
   user: RouterOutputs["user"]["getUser"];
   userSession: Session;
 }
 
 export default function UserBio({
   setToggleModal,
+  setFollowedToggleModal,
   user,
   userSession,
 }: UserBioProps) {
   // ? Follow user mutation
   const { mutate: followUser, isLoading: followLoading } = useProfileFollow({
     loggedInUserID: userSession.user.id,
+    from: "BIO",
   });
 
   // ? Un follow user mutation
   const { mutate: unFollowUser, isLoading: unFollowLoading } = useUnfollowUser({
     loggedInUserID: userSession.user.id,
-    profileUserId: user.id,
+    profileUserID: user.id,
+    from: "BIO",
   });
 
   function userFollow() {
@@ -61,16 +65,19 @@ export default function UserBio({
                 </span>
                 Following
               </p>
-              <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+              <p
+                onClick={() => setFollowedToggleModal(true)}
+                className="cursor-pointer text-sm font-semibold text-gray-500 dark:text-gray-400"
+              >
                 <span className="font-bold text-gray-600">
-                  {user.followedByIDs.length}{" "}
+                  {user._count.followedBy}{" "}
                 </span>
                 Followers
               </p>
             </div>
             {userSession &&
               userSession.user.id !== user.id &&
-              (user.followedByIDs.includes(userSession.user.id) ? (
+              (user.followedBy.length ? (
                 <Button
                   color="failure"
                   className={`text-center ${

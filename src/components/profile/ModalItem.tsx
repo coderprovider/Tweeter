@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import useUnfollowUser from "../../hooks/user/useUnfollowUser";
 import { api, RouterOutputs } from "../../utils/api";
 import Link from "next/link";
+import useProfileFollow from "../../hooks/user/useProfileFollow";
 
 interface Props {
   user: RouterOutputs["follow"]["getFollowing"][number];
@@ -15,16 +16,18 @@ interface Props {
 }
 
 export default function ModalItem({ user, userSession, profileUserId }: Props) {
-  // TODO: Have to fix this mutation. userID must be changed
   const { mutate: unFollowMutate, isLoading: unFollowLoading } =
     useUnfollowUser({
-      profileUserId,
+      profileUserID: profileUserId,
       loggedInUserID: userSession.user.id,
+      from: "FOLLOWING",
     });
 
-  function userUnFollow() {
-    unFollowMutate({ unFollowUserID: user.id });
-  }
+  const { mutate: followMutate, isLoading: followLoading } = useProfileFollow({
+    profileUserID: profileUserId,
+    loggedInUserID: userSession.user.id,
+    from: "FOLLOWING",
+  });
 
   return (
     <li className="border-0 border-b-2 border-solid border-gray-200 py-3 sm:py-4">
@@ -51,24 +54,39 @@ export default function ModalItem({ user, userSession, profileUserId }: Props) {
             </p>
           </div>
         </div>
-        {profileUserId === userSession.user.id ? (
-          <Button
-            onClick={userUnFollow}
-            color="failure"
-            className={`text-center ${
-              unFollowLoading ? "pointer-events-none" : "pointer-events-auto"
-            }`}
-          >
-            {unFollowLoading ? (
-              <Spinner
-                color="failure"
-                aria-label="Default status example"
-                size="md"
-              />
-            ) : (
-              "Un Follow"
-            )}
-          </Button>
+        {user.id !== userSession.user.id ? (
+          user.followedByIDs.includes(userSession.user.id) ? (
+            <Button
+              onClick={() => unFollowMutate({ unFollowUserID: user.id })}
+              color="failure"
+              className={`text-center ${
+                unFollowLoading ? "pointer-events-none" : "pointer-events-auto"
+              }`}
+            >
+              {unFollowLoading ? (
+                <Spinner
+                  color="failure"
+                  aria-label="Default status example"
+                  size="md"
+                />
+              ) : (
+                "Un Follow"
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={() => followMutate({ followUserID: user.id })}
+              className={`text-center ${
+                followLoading ? "pointer-events-none" : "pointer-events-auto"
+              }`}
+            >
+              {followLoading ? (
+                <Spinner aria-label="Default status example" size="md" />
+              ) : (
+                "Follow"
+              )}
+            </Button>
+          )
         ) : null}
       </div>
       <p className="mt-3 truncate text-sm font-medium text-gray-500 dark:text-gray-400">
