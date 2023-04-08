@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryKey } from "@tanstack/react-query";
 import { Avatar, Button, Card, Dropdown, Spinner } from "flowbite-react";
 import { Session } from "next-auth";
 import dynamic from "next/dynamic";
@@ -27,9 +27,15 @@ interface TweetProps {
   tweet: RouterOutputs["tweet"]["getTweets"][number];
   userSession: Session;
   queryClient: QueryClient;
+  dataKey: QueryKey;
 }
 
-export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
+export default function Tweet({
+  tweet,
+  userSession,
+  queryClient,
+  dataKey,
+}: TweetProps) {
   const [toggleModal, setToggleModal] = useState<boolean>(false);
 
   // ! delete tweet mutation
@@ -41,12 +47,14 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
   const { mutate: likeTweet } = useLikeTweet({
     queryClient,
     userID: userSession.user.id,
+    dataKey,
   });
 
   // ! bookmark tweet mutation
   const { mutate: bookmarkTweet } = useBookmarkTweet({
     queryClient,
     userID: userSession.user.id,
+    dataKey,
   });
 
   // ! retweet tweet mutation
@@ -54,6 +62,7 @@ export default function Tweet({ tweet, userSession, queryClient }: TweetProps) {
     queryClient,
     userID: userSession.user.id,
     name: userSession.user.name || null,
+    dataKey,
   });
 
   // ! delete tweet function

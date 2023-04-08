@@ -12,6 +12,7 @@ import Tweet from "../components/layout/Tweet";
 import { appRouter } from "../server/api/root";
 import { createInnerTRPCContext } from "../server/api/trpc";
 import { api } from "../utils/api";
+import { getQueryKey } from "@trpc/react-query";
 
 const Home = ({
   userSession,
@@ -51,6 +52,11 @@ const Home = ({
                     tweet={t}
                     userSession={userSession}
                     queryClient={queryClient}
+                    dataKey={getQueryKey(
+                      api.tweet.getTweets,
+                      undefined,
+                      "query"
+                    )}
                   />
                 ))
               ) : (

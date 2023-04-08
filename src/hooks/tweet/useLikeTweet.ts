@@ -1,45 +1,31 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryKey } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { api, RouterOutputs } from "../../utils/api";
 
 interface Props {
   queryClient: QueryClient;
   userID: string;
+  dataKey: QueryKey;
 }
 
-export default function useLikeTweet({ queryClient, userID }: Props) {
+export default function useLikeTweet({ queryClient, userID, dataKey }: Props) {
   const { mutate } = api.tweet.likeTweet.useMutation({
     // * When mutate is called:
     onMutate: async ({ likeID, twitterID, newLikeID }) => {
       // * Cancel any outgoing refetches
       // * (so they don't overwrite the optimistic update)
       await queryClient.cancelQueries({
-        queryKey: [
-          ["tweet", "getTweets"],
-          {
-            type: "query",
-          },
-        ],
+        queryKey: dataKey,
       });
 
       // * Snapshot the previous value
       const previousTweets = <RouterOutputs["tweet"]["getTweets"]>(
-        queryClient.getQueryData([
-          ["tweet", "getTweets"],
-          {
-            type: "query",
-          },
-        ])
+        queryClient.getQueryData(dataKey)
       );
 
       // * Optimistically update to the new value
       queryClient.setQueryData(
-        [
-          ["tweet", "getTweets"],
-          {
-            type: "query",
-          },
-        ],
+        dataKey,
         (old: RouterOutputs["tweet"]["getTweets"] | undefined) => {
           if (old === undefined) {
             return old;
@@ -78,25 +64,12 @@ export default function useLikeTweet({ queryClient, userID }: Props) {
     onError: (err, newTweet, context) => {
       console.log(err);
       toast.error("Server error! Please try again later😓");
-      queryClient.setQueryData(
-        [
-          ["tweet", "getTweets"],
-          {
-            type: "query",
-          },
-        ],
-        context?.previousTweets
-      );
+      queryClient.setQueryData(dataKey, context?.previousTweets);
     },
     // * Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: [
-          ["tweet", "getTweets"],
-          {
-            type: "query",
-          },
-        ],
+        queryKey: dataKey,
       });
     },
   });

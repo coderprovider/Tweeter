@@ -1,4 +1,4 @@
-import { Alert, ListGroup } from "flowbite-react";
+import { Alert, ListGroup, Spinner } from "flowbite-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Tweet from "../../components/layout/Tweet";
@@ -11,6 +11,10 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../utils/api";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import NoTweet from "../../components/home/NoTweet";
+import { useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
 
 const FollowingModal = dynamic(
   () => import("../../components/profile/FollowingModal"),
@@ -34,6 +38,24 @@ export default function Profile({
       userID: profileUserId,
     },
     { enabled: !!userSession, refetchOnMount: true }
+  );
+
+  const { data: tweets, isLoading: tweetsLoading } =
+    api.user.userTweets.useQuery(
+      {
+        userID: profileUserId,
+      },
+      { enabled: !!currentUser, refetchOnMount: true }
+    );
+
+  // const { data } = api.user.userMedia.useQuery({ userID: profileUserId });
+
+  // console.log(data);
+
+  const [parent] = useAutoAnimate();
+  const queryClient = useQueryClient();
+  const [currentTab, setCurrentTab] = useState<"TWEETS" | "MEDIA" | "LIKES">(
+    "TWEETS"
   );
 
   if (!userSession) {
@@ -92,7 +114,28 @@ export default function Profile({
             </ListGroup>
           </div>
 
-          <ul className="space-y-7 md:col-span-3">
+          <ul ref={parent} className="space-y-7 md:col-span-3">
+            {tweetsLoading ? (
+              <div className="mt-6 flex justify-center">
+                <Spinner size="lg" aria-label="Default status example" />
+              </div>
+            ) : tweets && tweets.length ? (
+              tweets.map((t) => (
+                <Tweet
+                  key={t.id}
+                  tweet={t}
+                  userSession={userSession}
+                  queryClient={queryClient}
+                  dataKey={getQueryKey(
+                    api.user.userTweets,
+                    { userID: profileUserId },
+                    "query"
+                  )}
+                />
+              ))
+            ) : (
+              <NoTweet />
+            )}
             {/* <Tweet />
             <Tweet /> */}
           </ul>
