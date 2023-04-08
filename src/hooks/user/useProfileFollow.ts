@@ -31,6 +31,7 @@ export default function useProfileFollow({
             };
           }
         );
+        utils.follow.getFollowedBy.invalidate({ userID: ctx.followUserID });
       } else if (from === "SUGGEST") {
         utils.follow.suggestToFollow.setData(
           undefined,
@@ -59,6 +60,37 @@ export default function useProfileFollow({
           }
         );
       } else if (from === "FOLLOWED") {
+        if (profileUserID! === loggedInUserID!) {
+          utils.user.getUser.setData(
+            { userID: profileUserID },
+            (old: RouterOutputs["user"]["getUser"] | undefined) => {
+              if (old === undefined) return old;
+              return {
+                ...old,
+                followedBy: [{ id: loggedInUserID! }],
+                _count: { ...old._count, following: old._count.following + 1 },
+              };
+            }
+          );
+          utils.follow.getFollowing.invalidate({ userID: profileUserID });
+        }
+
+        utils.follow.getFollowedBy.setData(
+          { userID: profileUserID! },
+          (old: RouterOutputs["follow"]["getFollowedBy"] | undefined) => {
+            if (old === undefined) return old;
+            return [
+              ...old.map((u) =>
+                u.id === data
+                  ? {
+                      ...u,
+                      followedByIDs: [...u.followedByIDs, loggedInUserID!],
+                    }
+                  : u
+              ),
+            ];
+          }
+        );
       }
     },
     onError: (err) => {

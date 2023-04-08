@@ -4,7 +4,7 @@ import { api, RouterOutputs } from "../../utils/api";
 interface Props {
   profileUserID: string;
   loggedInUserID: string;
-  from: "BIO" | "FOLLOWING";
+  from: "BIO" | "FOLLOWING" | "FOLLOWED";
 }
 
 export default function useUnfollowUser({
@@ -34,30 +34,70 @@ export default function useUnfollowUser({
             };
           }
         );
-      } else if (profileUserID === loggedInUserID && from === "FOLLOWING") {
-        utils.follow.getFollowing.setData(
-          { userID: profileUserID },
-          (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
-            if (!old) return old;
-            return [...old.filter((u) => u.id !== data)];
-          }
-        );
+        utils.follow.getFollowedBy.invalidate({ userID: profileUserID });
+      } else if (from === "FOLLOWING") {
+        if (profileUserID === loggedInUserID) {
+          utils.follow.getFollowing.setData(
+            { userID: profileUserID },
+            (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
+              if (!old) return old;
+              return [...old.filter((u) => u.id !== data)];
+            }
+          );
 
-        utils.user.getUser.setData(
-          { userID: profileUserID },
-          (old: RouterOutputs["user"]["getUser"] | undefined) => {
-            if (old === undefined) return old;
-            return {
-              ...old,
-              _count: { ...old._count, following: old._count.following - 1 },
-            };
-          }
-        );
-      } else if (profileUserID !== loggedInUserID && from === "FOLLOWING") {
-        // * Must pass logged in userID and profile userID
-        utils.follow.getFollowing.setData(
+          utils.follow.getFollowedBy.invalidate({ userID: profileUserID });
+
+          utils.user.getUser.setData(
+            { userID: profileUserID },
+            (old: RouterOutputs["user"]["getUser"] | undefined) => {
+              if (old === undefined) return old;
+              return {
+                ...old,
+                _count: { ...old._count, following: old._count.following - 1 },
+              };
+            }
+          );
+        } else {
+          utils.follow.getFollowing.setData(
+            { userID: profileUserID! },
+            (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
+              if (old === undefined) return old;
+              return [
+                ...old.map((u) =>
+                  u.id === data
+                    ? {
+                        ...u,
+                        followedByIDs: [
+                          ...u.followedByIDs.filter(
+                            (f) => f !== loggedInUserID
+                          ),
+                        ],
+                      }
+                    : u
+                ),
+              ];
+            }
+          );
+        }
+      } else if (from === "FOLLOWED") {
+        if (profileUserID === loggedInUserID) {
+          utils.user.getUser.setData(
+            { userID: profileUserID },
+            (old: RouterOutputs["user"]["getUser"] | undefined) => {
+              if (old === undefined) return old;
+              return {
+                ...old,
+                _count: { ...old._count, following: old._count.following - 1 },
+              };
+            }
+          );
+
+          utils.follow.getFollowing.invalidate({ userID: profileUserID });
+        }
+
+        utils.follow.getFollowedBy.setData(
           { userID: profileUserID! },
-          (old: RouterOutputs["follow"]["getFollowing"] | undefined) => {
+          (old: RouterOutputs["follow"]["getFollowedBy"] | undefined) => {
             if (old === undefined) return old;
             return [
               ...old.map((u) =>
