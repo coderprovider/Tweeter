@@ -141,4 +141,40 @@ export const userRouter = createTRPCRouter({
         throw new TRPCError(formatError(err));
       }
     }),
+  userLikes: protectedProcedure
+    .input(z.object({ userID: z.string() }))
+    .query(async ({ ctx: { prisma, session }, input: { userID } }) => {
+      try {
+        const tweetsWithLikes = await prisma.tweet.findMany({
+          where: {
+            likes: {
+              some: {
+                user: {
+                  id: userID,
+                },
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          include: reusedInclude(userID, session.user.id),
+        });
+
+        return tweetsWithLikes;
+      } catch (err) {
+        console.log(err);
+        throw new TRPCError(formatError(err));
+      }
+    }),
+  userBookmarks: protectedProcedure
+    .input(z.object({ userID: z.string() }))
+    .query(async ({ ctx: { prisma, session }, input: { userID } }) => {
+      try {
+        const bookmarkedTweets = await prisma.tweet.findMany({});
+      } catch (err) {
+        console.log(err);
+        throw new TRPCError(formatError(err));
+      }
+    }),
 });
