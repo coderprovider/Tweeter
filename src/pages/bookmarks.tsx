@@ -1,17 +1,10 @@
 import { Alert, ListGroup } from "flowbite-react";
-import Tweet from "../components/layout/Tweet";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "../server/api/root";
-import { createInnerTRPCContext } from "../server/api/trpc";
-import superjson from "superjson";
 import { useState } from "react";
-import MediaTab from "../components/profile/MediaTab";
-import LikesTab from "../components/profile/LikesTab";
-import BookmarkTweetTab from "../components/bookmark/BookmarkTweetTab";
 import BookmarkLikeTab from "../components/bookmark/BookmarkLikeTab";
 import BookmarkMediaTab from "../components/bookmark/BookmarkMediaTab";
+import BookmarkTweetTab from "../components/bookmark/BookmarkTweetTab";
 
 export default function Bookmarks({
   userSession,
@@ -67,27 +60,8 @@ export default function Bookmarks({
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const userSession = await getSession(context);
 
-  // if (userSession === null) {
-  //   return {
-  //     redirect: {
-  //       permanent: false,
-  //       destination: "/",
-  //     },
-  //     props: { userSession },
-  //   };
-  // }
-
-  // const ssg = createProxySSGHelpers({
-  //   router: appRouter,
-  //   ctx: createInnerTRPCContext({ session: userSession }),
-  //   transformer: superjson,
-  // });
-
-  // await ssg.user.getUser.prefetch({ userID: userSession.user.id });
-
   return {
     props: {
-      // trpcState: ssg.dehydrate(),
       userSession,
     },
   };
