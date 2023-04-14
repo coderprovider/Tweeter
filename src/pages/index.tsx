@@ -22,18 +22,10 @@ const Home = ({
     { enabled: userSession?.user !== undefined }
   );
 
-  // const { data } = api.tweet.test.useQuery(
-  //   undefined, // no input
-  //   { enabled: userSession?.user !== undefined }
-  // );
-
   const { data: suggestToFollow } = api.follow.suggestToFollow.useQuery(
     undefined, // no input
     { enabled: userSession?.user !== undefined, refetchOnMount: true }
   );
-
-  // console.log(suggestToFollow);
-  // console.log(data);
 
   const queryClient = useQueryClient();
   const [parent] = useAutoAnimate();

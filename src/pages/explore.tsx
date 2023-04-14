@@ -32,8 +32,8 @@ export default function Explore() {
           <BiSearch className="absolute top-2 right-2 cursor-pointer text-2xl text-gray-400 hover:text-blue-500" />
         </form>
         <ul className="w-full space-y-7 py-4">
-          <Tweet />
-          <Tweet />
+          {/* <Tweet />
+          <Tweet /> */}
         </ul>
       </section>
     </main>

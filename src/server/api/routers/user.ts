@@ -3,7 +3,12 @@ import { z } from "zod";
 import { formatError } from "../../../utils/utilityFunctions";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
-function reusedInclude(profileUserID: string, loggedInUserID: string) {
+interface ReusedIncludeProps {
+  profileUserID?: string;
+  loggedInUserID: string;
+}
+
+function reusedInclude({ profileUserID, loggedInUserID }: ReusedIncludeProps) {
   const reusedWhere = {
     user: {
       id: loggedInUserID,
@@ -22,9 +27,11 @@ function reusedInclude(profileUserID: string, loggedInUserID: string) {
     retweets: {
       where: {
         user: {
-          id: {
-            in: [profileUserID, loggedInUserID],
-          },
+          id: profileUserID
+            ? {
+                in: [profileUserID, loggedInUserID],
+              }
+            : loggedInUserID,
         },
       },
       include: {
@@ -41,6 +48,16 @@ function reusedInclude(profileUserID: string, loggedInUserID: string) {
     },
     Bookmark: {
       where: reusedWhere,
+    },
+  };
+}
+
+function userIdFromArray(userID: string) {
+  return {
+    some: {
+      user: {
+        id: userID,
+      },
     },
   };
 }
@@ -95,20 +112,17 @@ export const userRouter = createTRPCRouter({
                 },
               },
               {
-                retweets: {
-                  some: {
-                    user: {
-                      id: userID,
-                    },
-                  },
-                },
+                retweets: userIdFromArray(userID),
               },
             ],
           },
           orderBy: {
             createdAt: "desc",
           },
-          include: reusedInclude(userID, session.user.id),
+          include: reusedInclude({
+            profileUserID: userID,
+            loggedInUserID: session.user.id,
+          }),
         });
 
         return tweets;
@@ -133,7 +147,10 @@ export const userRouter = createTRPCRouter({
           orderBy: {
             createdAt: "desc",
           },
-          include: reusedInclude(userID, session.user.id),
+          include: reusedInclude({
+            profileUserID: userID,
+            loggedInUserID: session.user.id,
+          }),
         });
         return tweetsWithMedia;
       } catch (err) {
@@ -147,18 +164,15 @@ export const userRouter = createTRPCRouter({
       try {
         const tweetsWithLikes = await prisma.tweet.findMany({
           where: {
-            likes: {
-              some: {
-                user: {
-                  id: userID,
-                },
-              },
-            },
+            likes: userIdFromArray(userID),
           },
           orderBy: {
             createdAt: "desc",
           },
-          include: reusedInclude(userID, session.user.id),
+          include: reusedInclude({
+            profileUserID: userID,
+            loggedInUserID: session.user.id,
+          }),
         });
 
         return tweetsWithLikes;
@@ -167,14 +181,68 @@ export const userRouter = createTRPCRouter({
         throw new TRPCError(formatError(err));
       }
     }),
-  userBookmarks: protectedProcedure
-    .input(z.object({ userID: z.string() }))
-    .query(async ({ ctx: { prisma, session }, input: { userID } }) => {
+  userBookmarks: protectedProcedure.query(
+    async ({ ctx: { prisma, session } }) => {
       try {
-        const bookmarkedTweets = await prisma.tweet.findMany({});
+        const bookmarkedTweets = await prisma.tweet.findMany({
+          where: {
+            Bookmark: userIdFromArray(session.user.id),
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          include: reusedInclude({ loggedInUserID: session.user.id }),
+        });
+
+        return bookmarkedTweets;
       } catch (err) {
         console.log(err);
         throw new TRPCError(formatError(err));
       }
-    }),
+    }
+  ),
+  userBookmarkedLikes: protectedProcedure.query(
+    async ({ ctx: { prisma, session } }) => {
+      try {
+        const bookmarkedLikes = await prisma.tweet.findMany({
+          where: {
+            Bookmark: userIdFromArray(session.user.id),
+            likes: userIdFromArray(session.user.id),
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          include: reusedInclude({ loggedInUserID: session.user.id }),
+        });
+
+        return bookmarkedLikes;
+      } catch (err) {
+        console.log(err);
+        throw new TRPCError(formatError(err));
+      }
+    }
+  ),
+  userBookmarkedMedia: protectedProcedure.query(
+    async ({ ctx: { prisma, session } }) => {
+      try {
+        const bookmarkedMedia = await prisma.tweet.findMany({
+          where: {
+            Bookmark: userIdFromArray(session.user.id),
+            image: {
+              not: null,
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          include: reusedInclude({ loggedInUserID: session.user.id }),
+        });
+
+        return bookmarkedMedia;
+      } catch (err) {
+        console.log(err);
+        throw new TRPCError(formatError(err));
+      }
+    }
+  ),
 });

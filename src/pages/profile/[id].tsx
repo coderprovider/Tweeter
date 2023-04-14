@@ -10,8 +10,6 @@ import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 import superjson from "superjson";
 import { api } from "../../utils/api";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useQueryClient } from "@tanstack/react-query";
 import TweetTab from "../../components/profile/TweetTab";
 import MediaTab from "../../components/profile/MediaTab";
 import LikesTab from "../../components/profile/LikesTab";
@@ -40,12 +38,6 @@ export default function Profile({
     { enabled: !!userSession, refetchOnMount: true }
   );
 
-  // const { data } = api.user.userMedia.useQuery({ userID: profileUserId });
-
-  // console.log(data);
-
-  const [parent] = useAutoAnimate();
-  const queryClient = useQueryClient();
   const [currentTab, setCurrentTab] = useState<"TWEETS" | "MEDIA" | "LIKES">(
     "TWEETS"
   );
@@ -98,7 +90,6 @@ export default function Profile({
               >
                 Tweets
               </ListGroup.Item>
-              <ListGroup.Item>Tweets & Replies</ListGroup.Item>
               <ListGroup.Item
                 active={currentTab === "MEDIA"}
                 onClick={() => setCurrentTab("MEDIA")}

@@ -1,6 +1,7 @@
 import { Navbar, Dropdown, Avatar, Button } from "flowbite-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Dispatch, SetStateAction } from "react";
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 
 export default function AppHeader({ setToggleModal }: Props) {
   const { data: sessionData } = useSession();
+  const router = useRouter();
 
   return (
     <header className="AppHeader w-full bg-white">
@@ -58,17 +60,35 @@ export default function AppHeader({ setToggleModal }: Props) {
         </div>
         <Navbar.Collapse>
           <Link href="/">
-            <span className="cursor-pointer text-sm text-gray-700 hover:text-blue-500">
+            <span
+              className={`cursor-pointer text-sm ${
+                router.pathname === "/"
+                  ? "text-blue-500"
+                  : "text-gray-700 hover:text-blue-500"
+              }`}
+            >
               Home
             </span>
           </Link>
           <Link href="/explore">
-            <span className="cursor-pointer text-sm text-gray-700 hover:text-blue-500">
+            <span
+              className={`cursor-pointer text-sm ${
+                router.pathname === "/explore"
+                  ? "text-blue-500"
+                  : "text-gray-700 hover:text-blue-500"
+              }`}
+            >
               Explore
             </span>
           </Link>
           <Link href="/bookmarks">
-            <span className="cursor-pointer text-sm text-gray-700 hover:text-blue-500">
+            <span
+              className={`cursor-pointer text-sm ${
+                router.pathname === "/bookmarks"
+                  ? "text-blue-500"
+                  : "text-gray-700 hover:text-blue-500"
+              }`}
+            >
               Bookmarks
             </span>
           </Link>
