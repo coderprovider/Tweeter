@@ -56,7 +56,7 @@ export const exploreRouter = createTRPCRouter({
             },
           },
           orderBy: {
-            createdAt: "asc",
+            createdAt: "desc",
           },
           include: reusedInclude(session.user.id),
         });
@@ -109,6 +109,14 @@ export const exploreRouter = createTRPCRouter({
               mode: "insensitive",
             },
           },
+          orderBy: [
+            {
+              likes: {
+                _count: "desc",
+              },
+            },
+            { createdAt: "desc" },
+          ],
           include: reusedInclude(session.user.id),
         });
 
@@ -138,6 +146,11 @@ export const exploreRouter = createTRPCRouter({
             id: true,
             name: true,
             image: true,
+            _count: {
+              select: {
+                followedBy: true,
+              },
+            },
           },
         });
 
@@ -147,4 +160,92 @@ export const exploreRouter = createTRPCRouter({
         throw new TRPCError(formatError(err));
       }
     }),
+  searchQuery: protectedProcedure
+    .input(
+      z.object({
+        srcQuery: z.string(),
+        currentTab: z.enum(["TOP", "MEDIA", "LATEST", "PEOPLE"]),
+      })
+    )
+    .mutation(
+      async ({ ctx: { prisma, session }, input: { srcQuery, currentTab } }) => {
+        try {
+          if (currentTab === "LATEST") {
+            return await prisma.tweet.findMany({
+              where: {
+                text: {
+                  contains: srcQuery,
+                  mode: "insensitive",
+                },
+              },
+              orderBy: {
+                createdAt: "desc",
+              },
+              include: reusedInclude(session.user.id),
+            });
+          } else if (currentTab === "MEDIA") {
+            return await prisma.tweet.findMany({
+              where: {
+                image: {
+                  not: null,
+                },
+                text: {
+                  contains: srcQuery,
+                  mode: "insensitive",
+                },
+              },
+              orderBy: [
+                {
+                  likes: {
+                    _count: "desc",
+                  },
+                },
+                { createdAt: "desc" },
+              ],
+              include: reusedInclude(session.user.id),
+            });
+          } else if (currentTab === "TOP") {
+            return await prisma.tweet.findMany({
+              where: {
+                text: {
+                  contains: srcQuery,
+                  mode: "insensitive",
+                },
+              },
+              orderBy: [
+                {
+                  likes: {
+                    _count: "desc",
+                  },
+                },
+                { createdAt: "desc" },
+              ],
+              include: reusedInclude(session.user.id),
+            });
+          } else {
+            return await prisma.user.findMany({
+              where: {
+                name: {
+                  contains: srcQuery,
+                  mode: "insensitive",
+                },
+              },
+              orderBy: {
+                followedBy: {
+                  _count: "desc",
+                },
+              },
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            });
+          }
+        } catch (err) {
+          console.log(err);
+          throw new TRPCError(formatError(err));
+        }
+      }
+    ),
 });

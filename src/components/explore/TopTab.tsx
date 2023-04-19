@@ -1,10 +1,10 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { api } from "../../utils/api";
-import { Alert, Spinner } from "flowbite-react";
-import Tweet from "../layout/Tweet";
-import { getQueryKey } from "@trpc/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
+import { Alert, Spinner } from "flowbite-react";
 import { Session } from "next-auth";
+import { api } from "../../utils/api";
+import Tweet from "../layout/Tweet";
 
 interface Props {
   userSession: Session;
@@ -15,8 +15,8 @@ export default function TopTab({ userSession, srcQuery }: Props) {
   const [parent] = useAutoAnimate();
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isRefetching } = api.explore.topTweets.useQuery(
-    { srcQuery: "" },
+  const { data, isLoading } = api.explore.topTweets.useQuery(
+    { srcQuery },
     {
       refetchOnMount: true,
     }
@@ -24,7 +24,7 @@ export default function TopTab({ userSession, srcQuery }: Props) {
 
   return (
     <ul ref={parent} className="space-y-7 py-4 md:col-span-3">
-      {isLoading || isRefetching ? (
+      {isLoading ? (
         <div className="mt-6 flex justify-center">
           <Spinner size="lg" aria-label="Default status example" />
         </div>
@@ -35,11 +35,7 @@ export default function TopTab({ userSession, srcQuery }: Props) {
             tweet={t}
             userSession={userSession}
             queryClient={queryClient}
-            dataKey={getQueryKey(
-              api.explore.topTweets,
-              { srcQuery: "" },
-              "query"
-            )}
+            dataKey={getQueryKey(api.explore.topTweets, undefined, "query")}
           />
         ))
       ) : (
