@@ -1,4 +1,4 @@
-import { TRPCError } from "@trpc/server";
+import type { TRPCError } from "@trpc/server";
 
 export function formatDate(myDate: Date) {
   const date = new Date(myDate);
