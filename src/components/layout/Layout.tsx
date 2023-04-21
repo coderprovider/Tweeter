@@ -1,6 +1,7 @@
 import Head from "next/head";
 import AppHeader from "./AppHeader";
-import { ReactElement, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { ReactElement } from "react";
 import dynamic from "next/dynamic";
 import LoadingBar from "react-top-loading-bar";
 import { useRouter } from "next/router";

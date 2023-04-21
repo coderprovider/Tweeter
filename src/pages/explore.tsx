@@ -1,5 +1,8 @@
 import { Alert, ListGroup, TextInput } from "flowbite-react";
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import { getSession } from "next-auth/react";
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";

@@ -1,13 +1,13 @@
-import { z } from "zod";
-
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import axios from "axios";
-import { RootArticle } from "../../../utils/types";
+import type { RootArticle } from "../../../utils/types";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const newsRouter = createTRPCRouter({
   getNews: publicProcedure.query(async () => {
     const res = await axios.get<RootArticle>(
-      `https://newsapi.org/v2/top-headlines?country=us&apiKey=${process.env.NEWS_API_KEY}`
+      `https://newsapi.org/v2/top-headlines?country=us&apiKey=${
+        process.env.NEWS_API_KEY ? process.env.NEWS_API_KEY : ""
+      }`
     );
     return res.data;
   }),

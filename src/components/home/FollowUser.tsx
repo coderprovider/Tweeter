@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { RouterOutputs } from "../../utils/api";
+import type { RouterOutputs } from "../../utils/api";
 import { Button, Spinner } from "flowbite-react";
 import useProfileFollow from "../../hooks/user/useProfileFollow";
 

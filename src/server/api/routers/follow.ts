@@ -1,8 +1,7 @@
-import { User } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { formatError } from "../../../utils/utilityFunctions";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const followRouter = createTRPCRouter({
   suggestToFollow: protectedProcedure.query(

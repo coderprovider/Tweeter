@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import cloudinary from "../../../utils/cloudinaryConfig";
 import { formatError } from "../../../utils/utilityFunctions";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const commentRouter = createTRPCRouter({
   getComments: protectedProcedure

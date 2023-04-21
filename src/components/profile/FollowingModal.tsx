@@ -1,10 +1,10 @@
 import { Alert, Modal, Spinner } from "flowbite-react";
 import ModalItem from "./ModalItem";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { api } from "../../utils/api";
 import { toast } from "react-hot-toast";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 
 interface FollowingModalProps {
   toggleModal: boolean;
@@ -41,7 +41,8 @@ const FollowingModal = ({
       onClose={() => setToggleModal(false)}
     >
       <Modal.Header className="border-0 border-b-2 border-solid border-gray-300">
-        {userSession.user.id === userID ? "You are" : `${name} is`} following
+        {userSession.user.id === userID ? "You are" : name ? `${name} is` : ""}{" "}
+        following
       </Modal.Header>
 
       <ul ref={parent} className="styledScrollbar max-h-[548px] px-5">
@@ -53,7 +54,11 @@ const FollowingModal = ({
           <Alert color="info" className="my-4">
             <span>
               <span className="font-medium">No users!</span>{" "}
-              {userSession.user.id === userID ? "You are " : `${name} is `}
+              {userSession.user.id === userID
+                ? "You are "
+                : name
+                ? `${name} is `
+                : ""}
               not following anyone yet!!!.
             </span>
           </Alert>

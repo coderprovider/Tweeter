@@ -1,13 +1,15 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import { getSession } from "next-auth/react";
 import superjson from "superjson";
 import CreateTweet from "../components/home/CreateTweet";
 import NoTweet from "../components/home/NoTweet";
 import ToFollow from "../components/home/ToFollow";
-import Trends from "../components/home/Trends";
 import Tweet from "../components/layout/Tweet";
 import { appRouter } from "../server/api/root";
 import { createInnerTRPCContext } from "../server/api/trpc";

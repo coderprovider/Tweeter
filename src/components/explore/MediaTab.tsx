@@ -4,7 +4,7 @@ import { Alert, Spinner } from "flowbite-react";
 import Tweet from "../layout/Tweet";
 import { getQueryKey } from "@trpc/react-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 
 interface Props {
   userSession: Session;

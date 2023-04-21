@@ -1,10 +1,11 @@
-import { QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { Avatar, TextInput } from "flowbite-react";
 import Image from "next/image";
-import { FormEvent, useState, useRef } from "react";
+import { useState, useRef } from "react";
+import type { FormEvent } from "react";
 import { BiImageAlt } from "react-icons/bi";
 import useCreateComment from "../../hooks/comment/useCreateComment";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 
 interface Props {
   queryClient: QueryClient;
@@ -36,15 +37,15 @@ export default function CommentBox({
   function handleImageChange(file: File | undefined) {
     if (file === undefined) return;
     const reader = (readFile: File) =>
-      new Promise<string>((resolve, reject) => {
+      new Promise<string>((resolve) => {
         const fileReader = new FileReader();
         fileReader.onload = () => resolve(fileReader.result as string);
         fileReader.readAsDataURL(readFile);
       });
 
-    reader(file).then((result: string) =>
-      setPhoto({ name: file.name, url: result })
-    );
+    reader(file)
+      .then((result: string) => setPhoto({ name: file.name, url: result }))
+      .catch((err) => console.log(err));
   }
 
   // ! create comment function

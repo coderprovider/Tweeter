@@ -1,14 +1,19 @@
-import { Dropdown, Spinner } from "flowbite-react";
-import { Card, Button, Avatar, Textarea } from "flowbite-react";
+import type { QueryClient } from "@tanstack/react-query";
+import {
+  Avatar,
+  Button,
+  Card,
+  Dropdown,
+  Spinner,
+  Textarea,
+} from "flowbite-react";
+import type { Session } from "next-auth";
+import Image from "next/image";
+import { useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import { BiImageAlt } from "react-icons/bi";
 import { BsGlobe } from "react-icons/bs";
-import { api, RouterOutputs } from "../../utils/api";
-import { useState, useRef } from "react";
-import { toast } from "react-hot-toast";
-import Image from "next/image";
-import { QueryClient } from "@tanstack/react-query";
 import useCreateTweet from "../../hooks/tweet/useCreateTweet";
-import { Session } from "next-auth";
 
 interface CreateTweetProps {
   queryClient: QueryClient;
@@ -38,15 +43,15 @@ export default function CreateTweet({
   function handleImageChange(file: File | undefined) {
     if (file === undefined) return;
     const reader = (readFile: File) =>
-      new Promise<string>((resolve, reject) => {
+      new Promise<string>((resolve) => {
         const fileReader = new FileReader();
         fileReader.onload = () => resolve(fileReader.result as string);
         fileReader.readAsDataURL(readFile);
       });
 
-    reader(file).then((result: string) =>
-      setPhoto({ name: file.name, url: result })
-    );
+    reader(file)
+      .then((result: string) => setPhoto({ name: file.name, url: result }))
+      .catch((err) => console.log(err));
   }
 
   // ! create the tweet

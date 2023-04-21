@@ -1,6 +1,6 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { Card, Spinner } from "flowbite-react";
-import { RouterOutputs } from "../../utils/api";
+import type { RouterOutputs } from "../../utils/api";
 import FollowUser from "./FollowUser";
 
 interface Props {

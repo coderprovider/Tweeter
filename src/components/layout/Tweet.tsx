@@ -1,6 +1,6 @@
-import { QueryClient, QueryKey } from "@tanstack/react-query";
+import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import { Avatar, Button, Card, Dropdown, Spinner } from "flowbite-react";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
@@ -15,7 +15,7 @@ import useBookmarkTweet from "../../hooks/tweet/useBookmarkTweet";
 import useDeleteTweet from "../../hooks/tweet/useDeleteTweet";
 import useLikeTweet from "../../hooks/tweet/useLikeTweet";
 import useRetweetTweet from "../../hooks/tweet/useRetweetTweet";
-import { RouterOutputs } from "../../utils/api";
+import type { RouterOutputs } from "../../utils/api";
 import { formatDate, objectId } from "../../utils/utilityFunctions";
 import Link from "next/link";
 
@@ -200,8 +200,9 @@ export default function Tweet({
               onClick={tweetRetweet}
               color=""
               className={`flex-1 ${
-                tweet.retweets.find((r) => r.userId === userSession.user.id) &&
-                "text-green-500"
+                tweet.retweets.find((r) => r.userId === userSession.user.id)
+                  ? "text-green-500"
+                  : ""
               }`}
             >
               <FaRetweet className="mr-3 text-xl" />
@@ -210,7 +211,9 @@ export default function Tweet({
             <Button
               onClick={tweetLike}
               color=""
-              className={`flex-1 ${tweet.likes.length === 1 && "text-red-500"}`}
+              className={`flex-1 ${
+                tweet.likes.length === 1 ? "text-red-500" : ""
+              }`}
             >
               <FaRegHeart className="mr-3 text-xl" />
               <span className="hidden sm:block">Like</span>
@@ -219,7 +222,7 @@ export default function Tweet({
               onClick={tweetBookmark}
               color=""
               className={`flex-1 ${
-                tweet.Bookmark.length === 1 && "text-blue-500"
+                tweet.Bookmark.length === 1 ? "text-blue-500" : ""
               }`}
             >
               <FaRegBookmark className="mr-3 text-xl" />

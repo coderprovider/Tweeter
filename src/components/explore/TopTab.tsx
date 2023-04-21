@@ -2,7 +2,7 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { Alert, Spinner } from "flowbite-react";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 import { api } from "../../utils/api";
 import Tweet from "../layout/Tweet";
 

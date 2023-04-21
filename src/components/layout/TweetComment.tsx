@@ -1,13 +1,13 @@
-import { QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { Avatar, Dropdown, Spinner } from "flowbite-react";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 import Image from "next/image";
 import React from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { FaRegHeart } from "react-icons/fa";
 import useDeleteComment from "../../hooks/comment/useDeleteComment";
 import useLikeComment from "../../hooks/comment/useLikeComment";
-import { RouterOutputs } from "../../utils/api";
+import type { RouterOutputs } from "../../utils/api";
 import { formatDate, objectId } from "../../utils/utilityFunctions";
 
 interface CommentProps {

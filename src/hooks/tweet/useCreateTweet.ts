@@ -1,6 +1,7 @@
-import { QueryClient } from "@tanstack/react-query";
-import { api, RouterOutputs } from "../../utils/api";
-import { Dispatch, SetStateAction } from "react";
+import type { QueryClient } from "@tanstack/react-query";
+import { api } from "../../utils/api";
+import type { RouterOutputs } from "../../utils/api";
+import type { Dispatch, SetStateAction } from "react";
 import { toast } from "react-hot-toast";
 
 interface Props {

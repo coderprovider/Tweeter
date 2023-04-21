@@ -4,7 +4,10 @@ import Image from "next/image";
 import UserBio from "../../components/profile/UserBio";
 import { useState } from "react";
 import { getSession } from "next-auth/react";
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "../../server/api/root";
 import { createInnerTRPCContext } from "../../server/api/trpc";

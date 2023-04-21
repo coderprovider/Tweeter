@@ -1,5 +1,5 @@
-import { Session } from "next-auth";
-import { RouterOutputs } from "../../utils/api";
+import type { Session } from "next-auth";
+import type { RouterOutputs } from "../../utils/api";
 import Link from "next/link";
 import useUnfollowUser from "../../hooks/user/useUnfollowUser";
 import { Button, Spinner } from "flowbite-react";

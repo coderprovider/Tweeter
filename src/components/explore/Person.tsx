@@ -1,5 +1,5 @@
 import { Avatar, Card } from "flowbite-react";
-import { RouterOutputs } from "../../utils/api";
+import type { RouterOutputs } from "../../utils/api";
 import Link from "next/link";
 
 interface Props {

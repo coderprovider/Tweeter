@@ -1,9 +1,9 @@
 import { Avatar, Button, Card, Spinner } from "flowbite-react";
-import { Session } from "next-auth";
-import { Dispatch, SetStateAction } from "react";
-import { api, RouterOutputs } from "../../utils/api";
+import type { Session } from "next-auth";
+import type { Dispatch, SetStateAction } from "react";
 import useProfileFollow from "../../hooks/user/useProfileFollow";
 import useUnfollowUser from "../../hooks/user/useUnfollowUser";
+import type { RouterOutputs } from "../../utils/api";
 
 interface UserBioProps {
   setToggleModal: Dispatch<SetStateAction<boolean>>;

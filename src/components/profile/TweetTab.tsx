@@ -3,7 +3,7 @@ import { api } from "../../utils/api";
 import { Spinner } from "flowbite-react";
 import Tweet from "../layout/Tweet";
 import { getQueryKey } from "@trpc/react-query";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import NoTweet from "../home/NoTweet";
 

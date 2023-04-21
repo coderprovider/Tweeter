@@ -1,6 +1,6 @@
 import { Button, Modal } from "flowbite-react";
 import { signIn } from "next-auth/react";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 interface FollowingModalProps {
   toggleModal: boolean;

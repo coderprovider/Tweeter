@@ -1,13 +1,9 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
 import { Button, Spinner } from "flowbite-react";
-import { Session } from "next-auth";
-import Image from "next/image";
-import { toast } from "react-hot-toast";
-import useUnfollowUser from "../../hooks/user/useUnfollowUser";
-import { api, RouterOutputs } from "../../utils/api";
+import type { Session } from "next-auth";
 import Link from "next/link";
 import useProfileFollow from "../../hooks/user/useProfileFollow";
+import useUnfollowUser from "../../hooks/user/useUnfollowUser";
+import type { RouterOutputs } from "../../utils/api";
 
 interface Props {
   user: RouterOutputs["follow"]["getFollowing"][number];

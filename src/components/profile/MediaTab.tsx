@@ -1,6 +1,6 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 import { api } from "../../utils/api";
 import { Spinner } from "flowbite-react";
 import Tweet from "../layout/Tweet";

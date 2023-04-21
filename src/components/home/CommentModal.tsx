@@ -1,8 +1,8 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { Alert, Modal, Spinner } from "flowbite-react";
-import { Session } from "next-auth";
-import { Dispatch, SetStateAction } from "react";
+import type { Session } from "next-auth";
+import type { Dispatch, SetStateAction } from "react";
 import { toast } from "react-hot-toast";
 import { api } from "../../utils/api";
 import CommentBox from "../layout/CommentBox";
