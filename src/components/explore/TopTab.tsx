@@ -35,7 +35,7 @@ export default function TopTab({ userSession, srcQuery }: Props) {
             tweet={t}
             userSession={userSession}
             queryClient={queryClient}
-            dataKey={getQueryKey(api.explore.topTweets, undefined, "query")}
+            dataKey={getQueryKey(api.explore.topTweets, { srcQuery }, "query")}
           />
         ))
       ) : (

@@ -35,7 +35,11 @@ export default function LatestTab({ srcQuery, userSession }: Props) {
             tweet={t}
             userSession={userSession}
             queryClient={queryClient}
-            dataKey={getQueryKey(api.explore.latestTweets, undefined, "query")}
+            dataKey={getQueryKey(
+              api.explore.latestTweets,
+              { srcQuery },
+              "query"
+            )}
           />
         ))
       ) : (

@@ -35,7 +35,7 @@ export default function MediaTab({ userSession, srcQuery }: Props) {
             tweet={t}
             userSession={userSession}
             queryClient={queryClient}
-            dataKey={getQueryKey(api.explore.topMedia, undefined, "query")}
+            dataKey={getQueryKey(api.explore.topMedia, { srcQuery }, "query")}
           />
         ))
       ) : (
